@@ -1,0 +1,4 @@
+name = "OSSAP Register"
+description = "Allows registering a vsite on another server"
+core = 7.x
+dependencies[] = "vsite_register"

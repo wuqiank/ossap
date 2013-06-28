@@ -1,0 +1,11 @@
+<?php
+
+/**
+ * @file
+ * Allows on server to create vsites on another, through the other server's REST api calls.
+ */
+
+function ossap_register_menu_alter(&$items) {
+  $items['site/register']['page callback'] = 'ossap_register_site_register_form';
+  $items['file'] = 'ossap_register.form.inc';
+}
