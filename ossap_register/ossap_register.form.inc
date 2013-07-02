@@ -145,7 +145,7 @@ function ossap_register_site_register_form($form, $form_state) {
       '#type' => 'submit',
       '#value' => t('Create Your Site'),
       '#attributes' => array(
-        'class' => array('use-ajax-submit')
+        //'class' => array('use-ajax-submit')
       )
     )
   );
