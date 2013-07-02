@@ -25,6 +25,8 @@
         $(this).hide();
       }
     });
+
+    $('#domain').html('http://'+Drupal.settings.ossap.domains[val]);
   }
 
   function submit(e) {

@@ -28,25 +28,30 @@ function ossap_register_site_register_form($form, $form_state) {
     }
   }
 
+  // TODO: take out this hard reference
+  $domains = variable_get('ossap_child_domains', array('localhost/os/' => 'localhost/os/'));
+
+  $form['#attached'] = array(
+    'js' => array(
+      drupal_get_path('module', 'ossap_register').'/js/ossap_register.form.js',
+      array(
+        'type' => 'setting',
+        'data' => array(
+          'ossap' => array(
+            'domains' => $domains,
+            'preset' => $settings,
+          )
+        )
+      )
+    )
+  );
+
   $form['preset'] = array(
     '#type' => 'select',
     '#title' => t('Select Preset'),
     '#options' => array(
       '' => t('Select Preset'),
-    )+$options,
-    '#attached' => array(
-      'js' => array(
-        drupal_get_path('module', 'ossap_register').'/js/ossap_register.form.js',
-        array(
-          'type' => 'setting',
-          'data' => array(
-            'ossap' => array(
-              'preset' => $settings
-            )
-          )
-        )
-      )
-    )
+    )+$options
   );
 
   $form['domain'] = array(
