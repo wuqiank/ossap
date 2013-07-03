@@ -101,5 +101,5 @@ function ossap_curlExec($curl_options, $redirect = FALSE) {
   $content = curl_exec($ch);
   curl_close($ch);
 
-  return $content
+  return $content;
 }

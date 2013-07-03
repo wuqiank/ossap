@@ -24,13 +24,12 @@ function ossap_register_menu_alter(&$items) {
  * @param int $parent
  * @param int $visibility
  */
-function ossap_create_vsite($name, $purl, $author, $bundle, $preset, $parent, $visibility){
+function ossap_create_vsite($server ,$name, $purl, $author, $bundle, $preset, $parent, $visibility){
 
   $new_site = array(
     'body'      => array(LANGUAGE_NONE => array(array())),
-    'title'     => $title,
+    'title'     => $name,
     'type'			=> $bundle,
-    'comment'   => 2,
     'promote'   => 0,
     'revision'  => 1,
     'log'       => '',
@@ -38,17 +37,17 @@ function ossap_create_vsite($name, $purl, $author, $bundle, $preset, $parent, $v
     'sticky'    => 0,
     'type'      => 'page',
     'language'  => LANGUAGE_NONE,
-    'author'    => $account->uid,
+    'author'    => $account,
     'spaces_preset_og' => $preset,
     'purl' 			=> array(
-								    'value' => $domain,
+								    'value' => $purl,
 								    'provider'=>'vsite_og',
 								    'id'=>NULL,
 							     ),
   );
 
   // Sets the parent relationship if this is a subsite with a parent specified.
-  if (isset($parent)) {
+  if (isset($parent) && $parent) {
     $new_site['field_group_parent'] = array(LANGUAGE_NONE => array(array(
       'target_id' => $parent,
       'access' => TRUE,
@@ -62,9 +61,17 @@ function ossap_create_vsite($name, $purl, $author, $bundle, $preset, $parent, $v
 	  }
   }
 
+  $servers = variable_get('ossap_child_domains', array());
+  if(isset($servers[$server]['restuser'])){
+    $rest_auth = $servers[$server]['restuser'];
+  }else{
+    error_log("Unable to find authentication information for domain [{$server}]");
+    $rest_auth = "";
+  }
+
   module_load_include('inc', 'ossap_register', 'includes/ossap_resthelper');
   $json = drupal_json_encode($new_site);
-  $result = ossap_httpRequest('node', 'POST', $account, $json);
+  $result = ossap_httpRequest("http://{$server}/node", 'POST', $rest_auth, $json);
   $vsite = drupal_json_decode($result);
 
   return (object) $vsite;

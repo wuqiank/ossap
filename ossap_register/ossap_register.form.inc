@@ -205,15 +205,19 @@ function ossap_register_site_register_form_submit(&$form, &$state) {
   }
 
   // Creates the vsite node.
-  $name = $purl = $values['domain'];
+  $name = $purl = $values['purl'];
   $author = $site_owner->uid;
 //TEMP
 $author = 1;
-  $bundle = $values['bundle'];
+  $bundle = $values['site_type'];
   $preset = $values['preset'];
   $parent = $_POST['parent'] ? $_POST['parent'] : FALSE;
   $visibility = isset($values['vsite_private']) ? $values['vsite_private'] : FALSE;
-  $vsite = ossap_create_vsite($name, $purl, $author, $bundle, $preset, $parent, $visibility);
+  /**
+	 * @todo Change to be the purl_base_domain of the server
+   */
+  $server = $values['domain'];
+  $vsite = ossap_create_vsite($server ,$name, $purl, $author, $bundle, $preset, $parent, $visibility);
   if ($vsite) {
     // Adds the user to the new vsite.
     /**
