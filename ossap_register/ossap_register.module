@@ -10,4 +10,5 @@ function ossap_register_menu_alter(&$items) {
   $items['site/register']['page arguments'] = array('ossap_register_site_register_form');
   $items['site/register']['file path'] = drupal_get_path('module', 'ossap_register');
   $items['site/register']['file'] = 'ossap_register.form.inc';
+  $items['site/register']['access callback'] = TRUE;
 }
