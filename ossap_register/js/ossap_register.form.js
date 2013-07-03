@@ -97,6 +97,7 @@
     }
 
     if (check.length == 0) {
+      $('#edit-purl + .error').hide();
       enableSubmit(false);
     }
     else if ($.inArray(val, check) == -1) {
