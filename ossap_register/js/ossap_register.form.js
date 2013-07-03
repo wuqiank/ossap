@@ -11,10 +11,11 @@
 
       $('#edit-site-type').change(changeSiteType).change();
       $('#edit-preset').change(changePreset).change();
-      $('#edit-purl').keyup(changePurl);
+      $('#edit-purl').keyup(checkPurl);
       $('#ossap-register-site-register-form').submit(submit);
 
       $('#domain').replaceWith($('#edit-domain'));
+      $('#edit-domain').change(checkPurl);
       $('.form-item-domain').remove();
 
       var servers = Drupal.settings.ossap.servers;
@@ -53,9 +54,10 @@
         }
       });
     }
+    checkPurl();
   }
 
-  function changePreset(e) {
+  function changePreset() {
     var preset = $(this).val(),
         servers = Drupal.settings.ossap.servers,
         domains = [];
@@ -82,14 +84,14 @@
     }
   }
 
-  function changePurl() {
-    var val = $(this).val(),
+  function checkPurl() {
+    var val = $('#edit-purl').val(),
         domain = $('#edit-domain').val(),
         servers = Drupal.settings.ossap.servers,
         check = [];
 
     for (var i in servers) {
-      if ($.inArray(domain, servers[i]['domains'] != -1) && 'http://'+i in purls) {
+      if ($.inArray(domain, servers[i]['domains']) != -1 && 'http://'+i in purls) {
         check = purls['http://'+i];
       }
     }
