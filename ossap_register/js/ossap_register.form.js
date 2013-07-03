@@ -96,14 +96,28 @@
       }
     }
 
-    if (check.length == 0 || $.inArray(val, check) == -1) {
+    if (check.length == 0) {
+      enableSubmit(false);
+    }
+    else if ($.inArray(val, check) == -1) {
       $('#edit-purl + .error').hide();
+      enableSubmit(true);
     }
     else {
       if ($('#edit-purl + .error').length == 0) {
         $('#edit-purl').after('<div class="error">This site name has been taken. Please enter another.</div>');
       }
       $('#edit-purl + .error').show();
+      enableSubmit(false);
+    }
+  }
+
+  function enableSubmit(enable) {
+    if (enable) {
+      $('#edit-create').attr('disabled', '');
+    }
+    else {
+      $('#edit-create').attr('disabled', 'disabled');
     }
   }
 
