@@ -4,17 +4,18 @@
  */
 
 (function ($) {
-  var purls = [];
+  var purls = {};
 
   Drupal.behaviors.ossapRegister = {
     attach: function (ctx) {
 
       $('#edit-site-type').change(changeSiteType).change();
       $('#edit-preset').change(changePreset).change();
-      $('#edit-purl').change(changePurl);
+      $('#edit-purl').keyup(checkPurl);
       $('#ossap-register-site-register-form').submit(submit);
 
       $('#domain').replaceWith($('#edit-domain'));
+      $('#edit-domain').change(checkPurl);
       $('.form-item-domain').remove();
 
       var servers = Drupal.settings.ossap.servers;
@@ -22,16 +23,18 @@
         var xhr = new XMLHttpRequest();
 
         xhr.open('GET', 'http://'+i+'/site/purls');
-        xhr.setRequestHeader('Origin', location.origin);
-        xhr.onreadystatechange = recievePurls;
+        xhr.onreadystatechange = function (xhr) {
+          xhr = xhr.target;
+          if (xhr.readyState == 4 && xhr.status < 400) {
+            data = JSON.parse(xhr.response);
+            purls[data.domain] = data.purls;
+            console.log(purls);
+          }
+        };
         xhr.send();
       }
     }
   };
-
-  function recievePurls (xhr) {
-    console.log(xhr);
-  }
 
   function changeSiteType() {
     var val = $(this).val(),
@@ -51,6 +54,7 @@
         }
       });
     }
+    checkPurl();
   }
 
   function changePreset() {
@@ -77,6 +81,43 @@
           $(this).hide();
         }
       });
+    }
+  }
+
+  function checkPurl() {
+    var val = $('#edit-purl').val(),
+        domain = $('#edit-domain').val(),
+        servers = Drupal.settings.ossap.servers,
+        check = [];
+
+    for (var i in servers) {
+      if ($.inArray(domain, servers[i]['domains']) != -1 && 'http://'+i in purls) {
+        check = purls['http://'+i];
+      }
+    }
+
+    if (check.length == 0) {
+      enableSubmit(false);
+    }
+    else if ($.inArray(val, check) == -1) {
+      $('#edit-purl + .error').hide();
+      enableSubmit(true);
+    }
+    else {
+      if ($('#edit-purl + .error').length == 0) {
+        $('#edit-purl').after('<div class="error">This site name has been taken. Please enter another.</div>');
+      }
+      $('#edit-purl + .error').show();
+      enableSubmit(false);
+    }
+  }
+
+  function enableSubmit(enable) {
+    if (enable) {
+      $('#edit-create').attr('disabled', '');
+    }
+    else {
+      $('#edit-create').attr('disabled', 'disabled');
     }
   }
 
