@@ -4,14 +4,14 @@
  */
 
 (function ($) {
-  var purls = [];
+  var purls = {};
 
   Drupal.behaviors.ossapRegister = {
     attach: function (ctx) {
 
       $('#edit-site-type').change(changeSiteType).change();
       $('#edit-preset').change(changePreset).change();
-      $('#edit-purl').change(changePurl);
+      $('#edit-purl').keyup(changePurl);
       $('#ossap-register-site-register-form').submit(submit);
 
       $('#domain').replaceWith($('#edit-domain'));
@@ -22,16 +22,18 @@
         var xhr = new XMLHttpRequest();
 
         xhr.open('GET', 'http://'+i+'/site/purls');
-        xhr.setRequestHeader('Origin', location.origin);
-        xhr.onreadystatechange = recievePurls;
+        xhr.onreadystatechange = function (xhr) {
+          xhr = xhr.target;
+          if (xhr.readyState == 4 && xhr.status < 400) {
+            data = JSON.parse(xhr.response);
+            purls[data.domain] = data.purls;
+            console.log(purls);
+          }
+        };
         xhr.send();
       }
     }
   };
-
-  function recievePurls (xhr) {
-    console.log(xhr);
-  }
 
   function changeSiteType() {
     var val = $(this).val(),
@@ -53,7 +55,7 @@
     }
   }
 
-  function changePreset() {
+  function changePreset(e) {
     var preset = $(this).val(),
         servers = Drupal.settings.ossap.servers,
         domains = [];
@@ -77,6 +79,29 @@
           $(this).hide();
         }
       });
+    }
+  }
+
+  function changePurl() {
+    var val = $(this).val(),
+        domain = $('#edit-domain').val(),
+        servers = Drupal.settings.ossap.servers,
+        check = [];
+
+    for (var i in servers) {
+      if ($.inArray(domain, servers[i]['domains'] != -1) && 'http://'+i in purls) {
+        check = purls['http://'+i];
+      }
+    }
+
+    if (check.length == 0 || $.inArray(val, check) == -1) {
+      $('#edit-purl + .error').hide();
+    }
+    else {
+      if ($('#edit-purl + .error').length == 0) {
+        $('#edit-purl').after('<div class="error">This site name has been taken. Please enter another.</div>');
+      }
+      $('#edit-purl + .error').show();
     }
   }
 
