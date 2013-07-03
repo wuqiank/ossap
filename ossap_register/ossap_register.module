@@ -12,3 +12,68 @@ function ossap_register_menu_alter(&$items) {
   $items['site/register']['file'] = 'ossap_register.form.inc';
   $items['site/register']['access callback'] = TRUE;
 }
+
+/**
+ * Create a vsite via REST
+ *
+ * @param string $name
+ * @param string $purl
+ * @param uid $author
+ * @param string $bundle
+ * @param string $preset
+ * @param int $parent
+ * @param int $visibility
+ */
+function ossap_create_vsite($name, $purl, $author, $bundle, $preset, $parent, $visibility){
+
+  $new_site = array(
+    'body'      => array(LANGUAGE_NONE => array(array())),
+    'title'     => $title,
+    'type'			=> $bundle,
+    'comment'   => 2,
+    'promote'   => 0,
+    'revision'  => 1,
+    'log'       => '',
+    'status'    => 1,
+    'sticky'    => 0,
+    'type'      => 'page',
+    'language'  => LANGUAGE_NONE,
+    'author'    => $account->uid,
+    'spaces_preset_og' => $preset,
+    'purl' 			=> array(
+								    'value' => $domain,
+								    'provider'=>'vsite_og',
+								    'id'=>NULL,
+							     ),
+  );
+
+  // Sets the parent relationship if this is a subsite with a parent specified.
+  if (isset($parent)) {
+    $new_site['field_group_parent'] = array(LANGUAGE_NONE => array(array(
+      'target_id' => $parent,
+      'access' => TRUE,
+    )));
+  }
+
+  // Sets the site visibility value if the module is available and specified.
+  if (module_exists('vsite_access')) {
+	  if (isset($visibility)) {
+	    $new_site[VSITE_ACCESS_FIELD] = array(LANGUAGE_NONE => array(array('value' => $visibility)));
+	  }
+  }
+
+  module_load_include('inc', 'ossap_register', 'includes/ossap_resthelper');
+  $json = drupal_json_encode($new_site);
+  $result = ossap_httpRequest('node', 'POST', $account, $json);
+  $vsite = drupal_json_decode($result);
+
+  return (object) $vsite;
+}
+
+/**
+ *
+ * @param unknown_type $user_options
+ */
+function ossap_user_create($user_options){
+
+}
