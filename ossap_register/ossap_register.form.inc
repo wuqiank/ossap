@@ -28,8 +28,9 @@ function ossap_register_site_register_form($form, $form_state) {
     }
   }
 
-  // TODO: take out this hard reference
-  $domains = variable_get('ossap_child_domains', array('localhost/os/' => 'localhost/os/'));
+  $servers = variable_get('ossap_child_domains', array());
+  $domains = array_keys($servers);
+  $domains = array_combine($domains, $domains);
 
   $form['#attached'] = array(
     'js' => array(
@@ -38,7 +39,7 @@ function ossap_register_site_register_form($form, $form_state) {
         'type' => 'setting',
         'data' => array(
           'ossap' => array(
-            'domains' => $domains,
+            'servers' => $servers,
             'preset' => $settings,
           )
         )
@@ -55,8 +56,8 @@ function ossap_register_site_register_form($form, $form_state) {
   );
 
   $form['domain'] = array(
-    '#type' => 'hidden',
-    '#value' => 'http://placeholder.com/',
+    '#type' => 'select',
+    '#options' => array('' => t('Select Domain')) + $domains,
   );
 
   $form['purl'] = array(

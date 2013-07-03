@@ -4,29 +4,80 @@
  */
 
 (function ($) {
+  var purls = [];
+
   Drupal.behaviors.ossapRegister = {
     attach: function (ctx) {
 
       $('#edit-site-type').change(changeSiteType).change();
+      $('#edit-preset').change(changePreset).change();
+      $('#edit-purl').change(changePurl);
       $('#ossap-register-site-register-form').submit(submit);
+
+      $('#domain').replaceWith($('#edit-domain'));
+      $('.form-item-domain').remove();
+
+      var servers = Drupal.settings.ossap.servers;
+      for (var i in servers) {
+        var xhr = new XMLHttpRequest();
+
+        xhr.open('GET', 'http://'+i+'/site/purls');
+        xhr.setRequestHeader('Origin', location.origin);
+        xhr.onreadystatechange = recievePurls;
+        xhr.send();
+      }
     }
   };
 
+  function recievePurls (xhr) {
+    console.log(xhr);
+  }
+
   function changeSiteType() {
-    var $this = $(this),
-      val = $this.val(),
+    var val = $(this).val(),
       presets = (val != "")?Drupal.settings.ossap.preset[val]:[];
 
-    $('#edit-preset').val('').find('option').each(function (i) {
-      if (this.value == "" || $.inArray(this.value, presets) != -1) {
-        $(this).show();
-      }
-      else {
-        $(this).hide();
-      }
-    });
+    if (val == '') {
+       $('.form-item-preset').hide();
+    }
+    else {
+      $('.form-item-preset').show();
+      $('#edit-preset').val('').find('option').each(function (i) {
+        if (this.value == "" || $.inArray(this.value, presets) != -1) {
+          $(this).show();
+        }
+        else {
+          $(this).hide();
+        }
+      });
+    }
+  }
 
-    $('#domain').html('http://'+Drupal.settings.ossap.domains[val]);
+  function changePreset() {
+    var preset = $(this).val(),
+        servers = Drupal.settings.ossap.servers,
+        domains = [];
+
+    if (preset == '') {
+      $('.form-item-purl').hide();
+    }
+    else {
+      $('.form-item-purl').show();
+      for (var i in servers) {
+        if ($.inArray(preset, servers[i]['presets']) != -1) {
+          domains = domains.concat(servers[i]['domains']);
+        }
+      }
+
+      $('#edit-domain').find('option').each(function (i) {
+        if (this.value == "" || $.inArray(this.value, domains) != -1) {
+          $(this).show();
+        }
+        else {
+          $(this).hide();
+        }
+      });
+    }
   }
 
   function submit(e) {
