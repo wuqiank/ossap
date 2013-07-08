@@ -37,7 +37,7 @@ function ossap_create_vsite($server ,$name, $purl, $author, $bundle, $preset, $p
     'sticky'    => 0,
     'type'      => 'page',
     'language'  => LANGUAGE_NONE,
-    'author'    => $account,
+    'author'    => $author,
     'spaces_preset_og' => $preset,
     'purl' 			=> array(
 								    'value' => $purl,
@@ -57,7 +57,7 @@ function ossap_create_vsite($server ,$name, $purl, $author, $bundle, $preset, $p
   // Sets the site visibility value if the module is available and specified.
   if (module_exists('vsite_access')) {
 	  if (isset($visibility)) {
-	    $new_site[VSITE_ACCESS_FIELD] = array(LANGUAGE_NONE => array(array('value' => $visibility)));
+	    $new_site[VSITE_ACCESS_FIELD] = $visibility;
 	  }
   }
 

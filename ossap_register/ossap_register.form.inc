@@ -77,7 +77,8 @@ function ossap_register_site_register_form($form, $form_state) {
   );
 
   module_load_include('form.inc', 'vsite_register');
-  if (!user_is_logged_in()) {
+  //@todo allow anything other than anon users
+  if (TRUE || !user_is_logged_in()) {
     // Anonymous users must always create new accounts.
     $form += _vsite_register_user_form();
     $form['vicarious_user'] = array(
