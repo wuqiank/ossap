@@ -25,9 +25,8 @@
         xhr.onreadystatechange = function (xhr) {
           xhr = xhr.target;
           if (xhr.readyState == 4 && xhr.status < 400) {
-            data = JSON.parse(xhr.response);
+            var data = JSON.parse(xhr.response);
             purls[data.domain] = data.purls;
-            console.log(purls);
           }
         };
         xhr.send();
