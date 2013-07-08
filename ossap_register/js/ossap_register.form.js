@@ -4,7 +4,11 @@
  */
 
 (function ($) {
-  var purls = {};
+  var purls = {},
+    timers = {
+      name: 0,
+      email: 0
+    };
 
   Drupal.behaviors.ossapRegister = {
     attach: function (ctx) {
@@ -14,8 +18,14 @@
       $('#edit-purl').keyup(checkPurl);
 
       $('#domain').replaceWith($('#edit-domain'));
-      $('#edit-domain').change(checkPurl);
+      $('#edit-domain')
+        .change(checkPurl)
+        .change(nameValidation)
+        .change(emailValidation);
       $('.form-item-domain').remove();
+
+      $('#edit-name').keyUp(queueNameValidation);
+      $('#edit-email').keyUp(queueEmailValidation);
 
       var servers = Drupal.settings.ossap.servers;
       for (var i in servers) {
@@ -117,6 +127,68 @@
     }
     else {
       $('#edit-create').attr('disabled', 'disabled');
+    }
+  }
+
+  function queueNameValidation() {
+    if (timers.name) {
+      clearTimeout(timers.name);
+    }
+
+    timers.name = setTimeout(nameValidate, 500);
+  }
+
+  function queueEmailValidation() {
+    if (timers.email) {
+      clearTimeout(timers.email);
+    }
+
+    timers.email = setTimeout(emailValidate, 500);
+  }
+
+  function nameValidate() {
+    var name = $('#edit-name').val(),
+      domain = $('#edit-domain').val();
+
+    if (name && domain) {
+      var xhr = new XMLHttpRequest();
+
+      xhr.open('GET', domain+'/site/register/validate/name/'+name);
+      xhr.onreadystatechange = function (xhr) {
+        xhr = xhr.target;
+        if (xhr.readyState == 4 && xhr.status < 400) {
+          var data = JSON.parse(xhr.responseText);
+          if (!data.valid) {
+            $('#name-errors').html('This username is not available. Please enter another.');
+          }
+          else {
+            $('#name-errors').html('This username is available.');
+          }
+        }
+      }
+    }
+  }
+
+  function emailValidate() {
+    var email = $('#edit-email').val(),
+      domain = $('#edit-domain').val();
+
+    if (email && domain) {
+      var xhr = new XMLHttpRequest();
+
+      xhr.open('GET', domain+'/site/register/validate/email/'+email);
+      xhr.onreadystatechange = function (xhr) {
+        xhr = xhr.target;
+        if (xhr.readyState == 4 && xhr.status < 400) {
+          var data = JSON.parse(xhr.responseText);
+          if (!data.valid) {
+            $('#email-errors').html('This email is already attached to an account. Please enter another.');
+          }
+          else {
+            $('#email-errors').html('This email is available.');
+          }
+        }
+      }
     }
   }
 
