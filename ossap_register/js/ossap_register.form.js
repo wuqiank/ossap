@@ -20,12 +20,12 @@
       $('#domain').replaceWith($('#edit-domain'));
       $('#edit-domain')
         .change(checkPurl)
-        .change(nameValidation)
-        .change(emailValidation);
+        .change(nameValidate)
+        .change(emailValidate);
       $('.form-item-domain').remove();
 
-      $('#edit-name').keyUp(queueNameValidation);
-      $('#edit-email').keyUp(queueEmailValidation);
+      $('#edit-name').keyup(queueNameValidation);
+      $('#edit-email').keyup(queueEmailValidation);
 
       var servers = Drupal.settings.ossap.servers;
       for (var i in servers) {
@@ -153,19 +153,20 @@
     if (name && domain) {
       var xhr = new XMLHttpRequest();
 
-      xhr.open('GET', domain+'/site/register/validate/name/'+name);
+      xhr.open('GET', 'http://'+domain+'/site/register/validate/name/'+name);
       xhr.onreadystatechange = function (xhr) {
         xhr = xhr.target;
         if (xhr.readyState == 4 && xhr.status < 400) {
           var data = JSON.parse(xhr.responseText);
           if (!data.valid) {
-            $('#name-errors').html('This username is not available. Please enter another.');
+            $('#name-errors').html(data.message);
           }
           else {
             $('#name-errors').html('This username is available.');
           }
         }
-      }
+      };
+      xhr.send();
     }
   }
 
@@ -176,19 +177,20 @@
     if (email && domain) {
       var xhr = new XMLHttpRequest();
 
-      xhr.open('GET', domain+'/site/register/validate/email/'+email);
+      xhr.open('GET', 'http://'+domain+'/site/register/validate/email/'+email);
       xhr.onreadystatechange = function (xhr) {
         xhr = xhr.target;
         if (xhr.readyState == 4 && xhr.status < 400) {
           var data = JSON.parse(xhr.responseText);
           if (!data.valid) {
-            $('#email-errors').html('This email is already attached to an account. Please enter another.');
+            $('#email-errors').html(data.message);
           }
           else {
             $('#email-errors').html('This email is available.');
           }
         }
-      }
+      };
+      xhr.send();
     }
   }
 
