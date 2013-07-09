@@ -68,7 +68,7 @@
         }
       });
       for (var i in servers) {
-        if ($.inArray(val, servers[i]['types']) != -1) {
+        if ('http://'+i in purls && $.inArray(val, servers[i]['types']) != -1) {
           domains = domains.concat(servers[i]['domains']);
         }
       }
@@ -81,6 +81,9 @@
           $(this).hide();
         }
       });
+      if (domains.length == 0) {
+        enableSubmit(false);
+      }
     }
     checkPurl();
   }
@@ -127,10 +130,10 @@
 
   function enableSubmit(enable) {
     if (enable) {
-      $('#edit-create').attr('disabled', '');
+      $('#edit-submit').attr('disabled', '');
     }
     else {
-      $('#edit-create').attr('disabled', 'disabled');
+      $('#edit-submit').attr('disabled', 'disabled');
     }
   }
 
