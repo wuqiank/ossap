@@ -91,7 +91,7 @@ function ossap_register_site_register_form($form, $form_state) {
       '#default_value' => TRUE,
     );
 
-    unset($form['main']['#ajax'], $form['name']['#ajax']);
+    unset($form['mail']['#ajax'], $form['name']['#ajax']);
   }
   elseif (user_access('create vsite content on behalf') && user_access('administer users')) {
     // Managers may:

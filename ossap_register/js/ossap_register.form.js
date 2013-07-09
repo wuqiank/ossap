@@ -13,33 +13,37 @@
   Drupal.behaviors.ossapRegister = {
     attach: function (ctx) {
 
-      $('#edit-site-type').change(changeSiteType).change();
-      $('#edit-preset').change(changePreset).change();
-      $('#edit-purl').keyup(checkPurl);
+      if ($(ctx).find('form').length > 0) {
 
-      $('#domain').replaceWith($('#edit-domain'));
-      $('#edit-domain')
-        .change(checkPurl)
-        .change(nameValidate)
-        .change(emailValidate);
-      $('.form-item-domain').remove();
+        $('#edit-site-type').change(changeSiteType).change();
+        $('#edit-preset').change(changePreset).change();
+        $('#edit-purl').keyup(checkPurl);
 
-      $('#edit-name').keyup(queueNameValidation);
-      $('#edit-email').keyup(queueEmailValidation);
+        $('#domain').replaceWith($('#edit-domain'));
+        $('#edit-domain')
+          .change(checkPurl)
+          .change(nameValidate)
+          .change(emailValidate);
+        $('.form-item-domain').remove();
 
-      var servers = Drupal.settings.ossap.servers;
-      for (var i in servers) {
-        var xhr = new XMLHttpRequest();
+        $('#edit-name').keyup(queueNameValidation);
+        $('#edit-mail').keyup(queueEmailValidation);
 
-        xhr.open('GET', 'http://'+i+'/site/purls');
-        xhr.onreadystatechange = function (xhr) {
-          xhr = xhr.target;
-          if (xhr.readyState == 4 && xhr.status < 400) {
-            var data = JSON.parse(xhr.response);
-            purls[data.domain] = data.purls;
-          }
-        };
-        xhr.send();
+        var servers = Drupal.settings.ossap.servers;
+        for (var i in servers) {
+          var xhr = new XMLHttpRequest();
+
+          xhr.open('GET', 'http://'+i+'/site/purls');
+          xhr.onreadystatechange = function (xhr) {
+            xhr = xhr.target;
+            if (xhr.readyState == 4 && xhr.status < 400) {
+              var data = JSON.parse(xhr.response);
+              purls[data.domain] = data.purls;
+            }
+          };
+          xhr.send();
+        }
+        enableSubmit(false);
       }
     }
   };
@@ -157,40 +161,56 @@
       xhr.onreadystatechange = function (xhr) {
         xhr = xhr.target;
         if (xhr.readyState == 4 && xhr.status < 400) {
-          var data = JSON.parse(xhr.responseText);
-          if (!data.valid) {
-            $('#name-errors').html(data.message);
+          try {
+            var data = JSON.parse(xhr.responseText);
+            if (!data.valid) {
+              $('#name-errors').html(data.message.join('<br />'));
+              enableSubmit(false);
+            }
+            else {
+              $('#name-errors').html('This username is available.');
+              enableSubmit(true);
+            }
           }
-          else {
-            $('#name-errors').html('This username is available.');
+          catch (e) {
+            console.log(e);
           }
         }
       };
       xhr.send();
+      $('#name-errors').html('<div class="ajax-progress ajax-progress-throbber"><div class="throbber">&nbsp;</div></div>');
     }
   }
 
   function emailValidate() {
-    var email = $('#edit-email').val(),
+    var email = $('#edit-mail').val(),
       domain = $('#edit-domain').val();
 
     if (email && domain) {
       var xhr = new XMLHttpRequest();
 
-      xhr.open('GET', 'http://'+domain+'/site/register/validate/email/'+email);
+      xhr.open('GET', 'http://'+domain+'/site/register/validate/mail/'+email);
       xhr.onreadystatechange = function (xhr) {
         xhr = xhr.target;
         if (xhr.readyState == 4 && xhr.status < 400) {
-          var data = JSON.parse(xhr.responseText);
-          if (!data.valid) {
-            $('#email-errors').html(data.message);
+          try {
+            var data = JSON.parse(xhr.responseText);
+            if (!data.valid) {
+              $('#mail-errors').html(data.message.join('<br />'));
+              enableSubmit(false);
+            }
+            else {
+              $('#mail-errors').html('This email is available.');
+              enableSubmit(true);
+            }
           }
-          else {
-            $('#email-errors').html('This email is available.');
+          catch (e) {
+            console.log(e);
           }
         }
       };
       xhr.send();
+      $('#mail-errors').html('<div class="ajax-progress ajax-progress-throbber"><div class="throbber">&nbsp;</div></div>');
     }
   }
 
