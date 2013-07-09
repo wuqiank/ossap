@@ -4,33 +4,46 @@
  */
 
 (function ($) {
-  var purls = {};
+  var purls = {},
+    timers = {
+      name: 0,
+      email: 0
+    };
 
   Drupal.behaviors.ossapRegister = {
     attach: function (ctx) {
 
-      $('#edit-site-type').change(changeSiteType).change();
-      $('#edit-preset').change(changePreset).change();
-      $('#edit-purl').keyup(checkPurl);
+      if ($(ctx).find('form').length > 0) {
 
-      $('#domain').replaceWith($('#edit-domain'));
-      $('#edit-domain').change(checkPurl);
-      $('.form-item-domain').remove();
+        $('#edit-site-type').change(changeSiteType).change();
+        $('#edit-preset').change(changePreset).change();
+        $('#edit-purl').keyup(checkPurl);
 
-      var servers = Drupal.settings.ossap.servers;
-      for (var i in servers) {
-        var xhr = new XMLHttpRequest();
+        $('#domain').replaceWith($('#edit-domain'));
+        $('#edit-domain')
+          .change(checkPurl)
+          .change(nameValidate)
+          .change(emailValidate);
+        $('.form-item-domain').remove();
 
-        xhr.open('GET', 'http://'+i+'/site/purls');
-        xhr.onreadystatechange = function (xhr) {
-          xhr = xhr.target;
-          if (xhr.readyState == 4 && xhr.status < 400) {
-            data = JSON.parse(xhr.response);
-            purls[data.domain] = data.purls;
-            console.log(purls);
-          }
-        };
-        xhr.send();
+        $('#edit-name').keyup(queueNameValidation);
+        $('#edit-mail').keyup(queueEmailValidation);
+
+        var servers = Drupal.settings.ossap.servers;
+        for (var i in servers) {
+          var xhr = new XMLHttpRequest();
+
+          xhr.open('GET', 'http://'+i+'/site/purls');
+          xhr.onreadystatechange = function (xhr) {
+            xhr = xhr.target;
+            if (xhr.readyState == 4 && xhr.status < 400) {
+              var data = JSON.parse(xhr.response);
+              purls[data.domain] = data.purls;
+            }
+          };
+          xhr.send();
+        }
+        enableSubmit(false);
       }
     }
   };
@@ -55,7 +68,7 @@
         }
       });
       for (var i in servers) {
-        if ($.inArray(val, servers[i]['types']) != -1) {
+        if ('http://'+i in purls && $.inArray(val, servers[i]['types']) != -1) {
           domains = domains.concat(servers[i]['domains']);
         }
       }
@@ -68,6 +81,9 @@
           $(this).hide();
         }
       });
+      if (domains.length == 0) {
+        enableSubmit(false);
+      }
     }
     checkPurl();
   }
@@ -114,10 +130,90 @@
 
   function enableSubmit(enable) {
     if (enable) {
-      $('#edit-create').attr('disabled', '');
+      $('#edit-submit').attr('disabled', '');
     }
     else {
-      $('#edit-create').attr('disabled', 'disabled');
+      $('#edit-submit').attr('disabled', 'disabled');
+    }
+  }
+
+  function queueNameValidation() {
+    if (timers.name) {
+      clearTimeout(timers.name);
+    }
+
+    timers.name = setTimeout(nameValidate, 500);
+  }
+
+  function queueEmailValidation() {
+    if (timers.email) {
+      clearTimeout(timers.email);
+    }
+
+    timers.email = setTimeout(emailValidate, 500);
+  }
+
+  function nameValidate() {
+    var name = $('#edit-name').val(),
+      domain = $('#edit-domain').val();
+
+    if (name && domain) {
+      var xhr = new XMLHttpRequest();
+
+      xhr.open('GET', 'http://'+domain+'/site/register/validate/name/'+name);
+      xhr.onreadystatechange = function (xhr) {
+        xhr = xhr.target;
+        if (xhr.readyState == 4 && xhr.status < 400) {
+          try {
+            var data = JSON.parse(xhr.responseText);
+            if (!data.valid) {
+              $('#name-errors').html(data.message.join('<br />'));
+              enableSubmit(false);
+            }
+            else {
+              $('#name-errors').html('This username is available.');
+              enableSubmit(true);
+            }
+          }
+          catch (e) {
+            console.log(e);
+          }
+        }
+      };
+      xhr.send();
+      $('#name-errors').html('<div class="ajax-progress ajax-progress-throbber"><div class="throbber">&nbsp;</div></div>');
+    }
+  }
+
+  function emailValidate() {
+    var email = $('#edit-mail').val(),
+      domain = $('#edit-domain').val();
+
+    if (email && domain) {
+      var xhr = new XMLHttpRequest();
+
+      xhr.open('GET', 'http://'+domain+'/site/register/validate/mail/'+email);
+      xhr.onreadystatechange = function (xhr) {
+        xhr = xhr.target;
+        if (xhr.readyState == 4 && xhr.status < 400) {
+          try {
+            var data = JSON.parse(xhr.responseText);
+            if (!data.valid) {
+              $('#mail-errors').html(data.message.join('<br />'));
+              enableSubmit(false);
+            }
+            else {
+              $('#mail-errors').html('This email is available.');
+              enableSubmit(true);
+            }
+          }
+          catch (e) {
+            console.log(e);
+          }
+        }
+      };
+      xhr.send();
+      $('#mail-errors').html('<div class="ajax-progress ajax-progress-throbber"><div class="throbber">&nbsp;</div></div>');
     }
   }
 
