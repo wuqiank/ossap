@@ -24,7 +24,7 @@ function ossap_register_menu_alter(&$items) {
  * @param int $parent
  * @param int $visibility
  */
-function ossap_create_vsite($server ,$name, $purl, $author, $bundle, $preset, $parent, $visibility){
+function ossap_create_vsite($domain ,$name, $purl, $author, $bundle, $preset, $parent, $visibility){
 
   $new_site = array(
     'body'      => array(LANGUAGE_NONE => array(array())),
@@ -35,7 +35,6 @@ function ossap_create_vsite($server ,$name, $purl, $author, $bundle, $preset, $p
     'log'       => '',
     'status'    => 1,
     'sticky'    => 0,
-    'type'      => 'page',
     'language'  => LANGUAGE_NONE,
     'author'    => $author,
     'spaces_preset_og' => $preset,
@@ -62,25 +61,39 @@ function ossap_create_vsite($server ,$name, $purl, $author, $bundle, $preset, $p
   }
 
   $servers = variable_get('ossap_child_domains', array());
-  if(isset($servers[$server]['restuser'])){
-    $rest_auth = $servers[$server]['restuser'];
+  if(isset($servers[$domain]['restuser'])){
+    $rest_auth = $servers[$domain]['restuser'];
   }else{
-    error_log("Unable to find authentication information for domain [{$server}]");
+    error_log("Unable to find authentication information for domain [{$domain}]");
     $rest_auth = "";
   }
 
   module_load_include('inc', 'ossap_register', 'includes/ossap_resthelper');
   $json = drupal_json_encode($new_site);
-  $result = ossap_httpRequest("http://{$server}/node", 'POST', $rest_auth, $json);
+  $result = ossap_httpRequest("http://{$domain}/node", 'POST', $rest_auth, $json);
   $vsite = drupal_json_decode($result);
 
   return (object) $vsite;
 }
 
 /**
- *
+ * Create a User via REST api call
  * @param unknown_type $user_options
  */
-function ossap_user_create($user_options){
+function ossap_user_create($domain, $user_options){
+return (object) array('uid' => 1);
+  $servers = variable_get('ossap_child_domains', array());
+  if(isset($servers[$domain]['restuser'])){
+    $rest_auth = $servers[$domain]['restuser'];
+  }else{
+    error_log("Unable to find authentication information for domain [{$domain}]");
+    $rest_auth = "";
+  }
 
+  module_load_include('inc', 'ossap_register', 'includes/ossap_resthelper');
+  $json = drupal_json_encode($user_options);
+  $result = ossap_httpRequest("http://{$domain}/user", 'POST', $rest_auth, $json);
+  $user = drupal_json_decode($result);
+
+  return (object) $user;
 }

@@ -169,6 +169,11 @@ function ossap_register_site_register_form_submit(&$form, &$state) {
 
   $values = $state['values'];
 
+  /**
+   * @todo Change to be the purl_base_domain of the server
+   */
+  $server = $values['domain'];
+
   // If the specified user account already exists...
   if ($values['vicarious_user'] && $values['existing_username']) {
     // Loads that user account as site owner.
@@ -189,7 +194,11 @@ function ossap_register_site_register_form_submit(&$form, &$state) {
       'field_first_name' => $values['first_name'],
       'field_last_name' => $values['last_name'],
     );
-    $site_owner = ossap_user_create($user_options);
+    $site_owner = ossap_user_create($server, $user_options);
+		if(!$site_owner){
+		  error_log("Unable to create account.");
+		  return FALSE;
+		}
 
     // Logs in as the new user, if we're not already logged in.
     $uli = "USER_LOGIN_LINK";
@@ -208,16 +217,11 @@ function ossap_register_site_register_form_submit(&$form, &$state) {
   // Creates the vsite node.
   $name = $purl = $values['purl'];
   $author = $site_owner->uid;
-//TEMP
-$author = 1;
   $bundle = $values['site_type'];
   $preset = $values['preset'];
   $parent = $_POST['parent'] ? $_POST['parent'] : FALSE;
   $visibility = isset($values['vsite_private']) ? $values['vsite_private'] : FALSE;
-  /**
-	 * @todo Change to be the purl_base_domain of the server
-   */
-  $server = $values['domain'];
+
   $vsite = ossap_create_vsite($server ,$name, $purl, $author, $bundle, $preset, $parent, $visibility);
   if ($vsite) {
     // Adds the user to the new vsite.
