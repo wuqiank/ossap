@@ -81,7 +81,6 @@ function ossap_create_vsite($domain ,$name, $purl, $author, $bundle, $preset, $p
  * @param unknown_type $user_options
  */
 function ossap_user_create($domain, $user_options){
-return (object) array('uid' => 1);
   $servers = variable_get('ossap_child_domains', array());
   if(isset($servers[$domain]['restuser'])){
     $rest_auth = $servers[$domain]['restuser'];

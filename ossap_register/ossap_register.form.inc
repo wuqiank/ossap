@@ -188,14 +188,15 @@ function ossap_register_site_register_form_submit(&$form, &$state) {
     // Create user for current logged in user or on someone else's behalf.
     $user_options = array(
       'name' => $values['name'],
-      'pass' => $values['password'],
+  //    'pass' => $values['password'],
       'mail' => $values['mail'],
       'status' => 1,
       'field_first_name' => $values['first_name'],
       'field_last_name' => $values['last_name'],
     );
+
     $site_owner = ossap_user_create($server, $user_options);
-		if(!$site_owner){
+		if(!$site_owner->uid){
 		  error_log("Unable to create account.");
 		  return FALSE;
 		}
@@ -224,13 +225,6 @@ function ossap_register_site_register_form_submit(&$form, &$state) {
 
   $vsite = ossap_create_vsite($server ,$name, $purl, $author, $bundle, $preset, $parent, $visibility);
   if ($vsite) {
-    // Adds the user to the new vsite.
-    /**
-     * @todo the next three lines should be handled on site-create, verify
-     */
-//     module_load_include('inc', 'vsite', 'includes/user');
-//     vsite_user_add($site_owner);
-//     os_role_grant($site_owner->uid, 'vsite admin', $vsite->id);
 
     $message = vsite_register_message($form, $values['domain']);
     $commands[] = ajax_command_replace('#submit-suffix', $message);
