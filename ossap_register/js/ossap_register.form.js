@@ -8,7 +8,9 @@
     timers = {
       name: 0,
       email: 0
-    };
+    },
+    preset_options = [],
+    domain_options = [];
 
   Drupal.behaviors.ossapRegister = {
     attach: function (ctx) {
@@ -61,10 +63,10 @@
       $('.form-item-preset').show();
       $('#edit-preset').val('').find('option').each(function (i) {
         if (this.value == "" || $.inArray(this.value, presets) != -1) {
-          $(this).show();
+          $(this).attr('disabled', '');
         }
         else {
-          $(this).hide();
+          $(this).attr('disabled', 'disabled');
         }
       });
       for (var i in servers) {
@@ -75,10 +77,10 @@
 
       $('#edit-domain').find('option').each(function (i) {
         if (this.value == "" || $.inArray(this.value, domains) != -1) {
-          $(this).show();
+          $(this).attr('disabled', '');
         }
         else {
-          $(this).hide();
+          $(this).attr('disabled', 'disabled');
         }
       });
       if (domains.length == 0) {
