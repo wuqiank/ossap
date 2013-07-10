@@ -150,11 +150,13 @@
 
     for (var i in servers) {
       if ($.inArray(domain, servers[i]['domains']) != -1 && 'http://'+i in purls) {
+        $('#pin-user').val(pins[i]);
         if (pins[i]) {
           $('#user-tabs').hide();
         }
         else {
           $('#user-tabs').show();
+          $('#target-domain').html('http://'+domain);
         }
       }
     }

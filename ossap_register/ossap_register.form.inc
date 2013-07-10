@@ -70,8 +70,8 @@ function ossap_register_site_register_form($form, $form_state) {
     '#size' => 30,
   );
 
-  if (module_exists('pinserver') && pinserver_check_status()) {
-    $huid = pinserver_get_user_huid();
+  if (TRUE || module_exists('pinserver') && pinserver_check_status()) {
+   // $huid = pinserver_get_user_huid();
 
     $pins = array();
     // get user id
@@ -126,7 +126,7 @@ function ossap_register_site_register_form($form, $form_state) {
         'id' => 'existing'
       ),
       'desc' => array(
-        '#markup' => t('Login credentials for <span id="target_domain"></span>'),
+        '#markup' => t('Login credentials for <span id="target-domain"></span>'),
       ),
       'username' => array(
         '#type' => 'textfield',
@@ -135,6 +135,13 @@ function ossap_register_site_register_form($form, $form_state) {
       'password' => array(
         '#type' => 'password',
         '#title' => t('Password')
+      )
+    ),
+    'pin_user' => array(
+      '#type' => 'hidden',
+      '#default_value' => 0,
+      '#attributes' => array(
+        'id' => 'pin-user',
       )
     )
   );
