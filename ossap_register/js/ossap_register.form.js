@@ -24,12 +24,15 @@
         $('#domain').replaceWith($('#edit-domain'));
         $('#edit-domain')
           .change(checkPurl)
+          .change(userCheck)
           .change(nameValidate)
           .change(emailValidate);
         $('.form-item-domain').remove();
 
         $('#edit-name').keyup(queueNameValidation);
         $('#edit-mail').keyup(queueEmailValidation);
+
+        $('#user-tabs').tabs().hide();
 
         var servers = Drupal.settings.ossap.servers;
         for (var i in servers) {
@@ -137,6 +140,23 @@
     }
     else {
       $('#edit-submit').attr('disabled', 'disabled').before('<div id="submission-errors">Some of what you have given us is invalid. Please correct it before continuing.</div>');
+    }
+  }
+
+  function userCheck() {
+    var domain = $('#edit-domain').val(),
+      servers = Drupal.settings.ossap.servers,
+      pins = Drupal.settings.ossap.pins;
+
+    for (var i in servers) {
+      if ($.inArray(domain, servers[i]['domains']) != -1 && 'http://'+i in purls) {
+        if (pins[i]) {
+          $('#user-tabs').hide();
+        }
+        else {
+          $('#user-tabs').show();
+        }
+      }
     }
   }
 
