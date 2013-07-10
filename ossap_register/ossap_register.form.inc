@@ -70,8 +70,8 @@ function ossap_register_site_register_form($form, $form_state) {
     '#size' => 30,
   );
 
-  if (TRUE || module_exists('pinserver') && pinserver_check_status()) {
-   // $huid = pinserver_get_user_huid();
+  if (module_exists('pinserver') && pinserver_check_status()) {
+    $huid = pinserver_get_user_huid();
 
     $pins = array();
     // get user id
