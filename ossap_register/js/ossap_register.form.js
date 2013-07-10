@@ -131,11 +131,12 @@
   }
 
   function enableSubmit(enable) {
+    $('#submission-errors').remove();
     if (enable) {
       $('#edit-submit').attr('disabled', '');
     }
     else {
-      $('#edit-submit').attr('disabled', 'disabled');
+      $('#edit-submit').attr('disabled', 'disabled').before('<div id="submission-errors">Some of what you have given us is invalid. Please correct it before continuing.</div>');
     }
   }
 
