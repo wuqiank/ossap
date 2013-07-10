@@ -76,6 +76,31 @@ function ossap_register_site_register_form($form, $form_state) {
     '#access' => module_exists('vsite_access'),
   );
 
+
+  if (module_exists('pinserver') && pinserver_check_status()) {
+    $huid = pinserver_get_user_huid();
+
+    $user_settings = array(
+      'type' => 'setting',
+      'data' => array(
+        'ossap' => array(
+          'pins' => array()
+        )
+      )
+    );
+    // get user id
+    foreach ($servers as $d => $temp) {
+      // get user id from path
+      $path = 'http://'.$d.'/something/something';
+
+      $uid = 0;
+      $user_settings['data']['ossap']['pins'][$d] = $uid;
+
+    }
+
+    $form['#attached']['js'][] = $user_settings;
+  }
+
   module_load_include('form.inc', 'vsite_register');
   //@todo allow anything other than anon users
   if (TRUE || !user_is_logged_in()) {
