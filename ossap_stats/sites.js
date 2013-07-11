@@ -1,5 +1,7 @@
-
-
+/**
+ * Prepares the local URL to fetch the number of sites from.
+ * @returns {string}
+ */
 function ossapStatsGetSitesUrl() {
     var pathArray = window.location.href.split( '/' );
     var protocol = pathArray[0];
@@ -8,12 +10,22 @@ function ossapStatsGetSitesUrl() {
     return url;
 }
 
+/**
+ * Fetches the total number of sites via AJAX and updates the element.
+ */
 function ossapStatsUpdateDiv() {
+    // Only continues if there is a properly ID'd div tag to update.
     var div = document.getElementById('ossap-stats-sites');
-    var request = new XMLHttpRequest();
+    if (typeof div === 'undefined') {
+        return;
+    }
+
+    // Finds the URL of the local menu item to query for the number.
     var url = ossapStatsGetSitesUrl();
 
-    request.open("GET", url,true);
+    // Makes an AJAX GET request.
+    var request = new XMLHttpRequest();
+    request.open("GET", url, true);
     request.onreadystatechange = function() {
         if (request.readyState == 4) {
             data = (request.responseText);
@@ -23,25 +35,5 @@ function ossapStatsUpdateDiv() {
     request.send(null);
 }
 
-console.log('loaded!!!');
+// Runs our function.
 ossapStatsUpdateDiv();
-/*jQuery(document).ready(function($) {
-    // Returns the local menu URL to query for the total number.
-    function getOssapStatsSitesUrl() {
-        var pathArray = window.location.href.split( '/' );
-        var protocol = pathArray[0];
-        var host = pathArray[2];
-        var url = protocol + '://' + host + '/ossap/stats/sites';
-        return url;
-    }
-
-    var selector = '#ossap-stats-sites';
-    if ($(selector).length) {
-        var url = getOssapStatsSitesUrl();
-        $.ajax({
-            'url' : url,
-        }).done(function(data) {
-            $(selector).text(data);
-        });
-    }
-});*/
