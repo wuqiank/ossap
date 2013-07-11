@@ -132,10 +132,6 @@ function ossap_register_site_register_form($form, $form_state) {
         '#type' => 'textfield',
         '#title' => t('Username'),
       ),
-      'password' => array(
-        '#type' => 'password',
-        '#title' => t('Password')
-      )
     ),
     'pin_user' => array(
       '#type' => 'hidden',
@@ -166,7 +162,28 @@ function ossap_register_site_register_form($form, $form_state) {
     '#ajax' => array('callback' => 'ossap_register_site_register_form_submit'),
   );
 
+  $form['#validate'][] = 'ossap_register_site_register_form_user_validate';
+
   return $form;
+}
+
+/**
+ * Validates that a user entered with username and password exist on the target server
+ */
+function ossap_register_site_register_form_user_validate($form, &$form_state) {
+  $values = &$form_state['values'];
+  // they're trying to use an existing account
+  if (isset($values['username'])) {
+    $uid = ossap_user_exists($values['domain'], $values['username']);
+     if (!$uid) {
+       form_set_error($form['tabs']['existing'], t('Unrecognized username or email on %domain. Please reenter and try again.', array('%domain' => $values['domain'])));
+     }
+    else {
+      $values['uid'] = $uid;
+    }
+  }
+
+  return true;
 }
 
 /**
@@ -184,15 +201,16 @@ function ossap_register_site_register_form_submit(&$form, &$state) {
    */
   $server = $values['domain'];
 
+  if ($values['pin_user']) {
+    $site_owner = new stdClass();
+    $site_owner->uid = $values['pin_user'];
+    $uli = "USER_LOGIN_LINK";
+  }
   // If the specified user account already exists...
-  if ($values['vicarious_user'] && $values['existing_username']) {
-    // Loads that user account as site owner.
-    /**
-     * @todo Allow users to create site for existing users
-     */
-    //$site_owner = user_load_by_name($values['existing_username']);
-    error_log("Unable to create account for existing users.");
-    return FALSE;
+  elseif (isset($values['uid']) && $values['uid']) {
+    $site_owner = new stdClass();
+    $site_owner->uid = $values['uid'];
+    $uli = "USER_LOGIN_LINK";
   }
   elseif (($values['vicarious_user'] && !$values['existing_username']) || (!$values['vicarious_user'] && $values['name'])) {
     // Create user for current logged in user or on someone else's behalf.

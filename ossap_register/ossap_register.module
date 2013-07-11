@@ -96,3 +96,25 @@ function ossap_user_create($domain, $user_options){
 
   return (object) $user;
 }
+
+/**
+ * Checks if a user with these credentials exists
+ */
+function ossap_user_exists($domain, $username) {
+
+  $servers = variable_get('ossap_child_domains', array());
+  if (isset($servers[$domain]['restuser'])){
+    $rest_auth = $servers[$domain]['restuser'];
+  }
+  else {
+    error_log("Unable to find authentication information for domain [{$domain}]");
+    $rest_auth = "";
+  }
+
+
+  module_load_include('inc', 'ossap_register', 'includes/ossap_resthelper');
+  $result = ossap_httpRequest("http://$domain/site/user/exists/$username", 'GET', $rest_auth);
+  $data = drupal_json_decode($result);
+
+  return $data['uid'];
+}
