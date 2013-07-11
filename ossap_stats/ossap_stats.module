@@ -1,0 +1,254 @@
+<?php
+
+/**
+ * @file
+ * Statistics for OpenScholar Single Access Point (OSSAP).
+ */
+
+/**
+ * Defines the settings variable name for the total child sites count block.
+ */
+define('OSSAP_SITES_BLOCK_SETTINGS', 'ossap_stats_sites_settings');
+
+/**
+ * Implements hook_block_info().
+ */
+function ossap_stats_block_info() {
+  $blocks = array();
+
+  $blocks['ossap_stats_sites'] = array(
+    'info' => t('Child servers: total sites'),
+    // DRUPAL_CACHE_PER_ROLE will be assumed.
+  );
+
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function ossap_stats_block_view($delta = '') {
+  $block = array();
+
+  switch ($delta) {
+    // Returns formatted total sites count; i.e. "3,032 total sites created".
+    case 'ossap_stats_sites':
+      $block['subject'] = NULL;
+      $block['content'] = ossap_stats_sites_block_content();
+      break;
+  }
+
+  return $block;
+}
+
+/**
+ * Implements hook_block_configure().
+ */
+function ossap_stats_block_configure($delta = '') {
+  $form = array();
+
+  switch ($delta) {
+    case 'ossap_stats_sites':
+      ossap_stats_sites_block_form($form);
+      break;
+  }
+
+  return $form;
+}
+
+/**
+ * Implements hook_block_save().
+ */
+function ossap_stats_block_save($delta = '', $edit = array()) {
+  switch ($delta) {
+    case 'ossap_stats_sites':
+      ossap_stats_sites_block_save($edit);
+      break;
+  }
+}
+
+/**
+ * Block form submit callback; saves the settings as an array.
+ */
+function ossap_stats_sites_block_save($edit) {
+  $settings = array();
+
+  // Gathers all the defined form elements as settings to save in one array.
+  $items = array('title', 'format', 'subtitle');
+  foreach ($items as $item) {
+    // If there is a value for this item...
+    if (isset($edit["ossap_stats_sites_$item"])) {
+      // Adds the new value to the settings array.
+      $settings[$item] = $edit["ossap_stats_sites_$item"];
+    }
+  }
+  // Merges with default settings array, in case any items don't have values.
+  $settings += ossap_stats_sites_block_settings_defaults();
+
+  // Saves the settings as a variable.
+  variable_set(OSSAP_SITES_BLOCK_SETTINGS, $settings);
+}
+
+/**
+ * Block configure form builder; provides options for total child sites block.
+ */
+function ossap_stats_sites_block_form(&$form) {
+  // Loads the existing block settings.
+  $settings = variable_get(OSSAP_SITES_BLOCK_SETTINGS, array());
+  // Merges existing settings with default values where no value exists.
+  $settings += ossap_stats_sites_block_settings_defaults();
+
+  // Provides the title text field.
+  $form['ossap_stats_sites_title'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Title'),
+    '#description' => t('(Optional)'),
+    '#default_value' => $settings['title'],
+    '#size' => 60,
+    '#maxlength' => 128,
+    '#required' => TRUE,
+  );
+  // Provides the number format select list.
+  $form['ossap_stats_sites_format'] = array(
+    '#type' => 'select',
+    '#title' => t('Number format'),
+    '#options' => array(
+      'comma' => '1,000',
+      'no-comma' => '1000',
+    ),
+    '#default_value' => $settings['format'],
+  );
+  // Provides the sub-title text field.
+  $form['ossap_stats_sites_subtitle'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Subtitle'),
+    '#default_value' => $settings['subtitle'],
+    '#size' => 60,
+    '#maxlength' => 128,
+    '#required' => TRUE,
+  );
+}
+
+/**
+ * Block content callback; returns formatted total sites count.
+ */
+function ossap_stats_sites_block_content() {
+
+  // Gets the settings and site count.
+  $defaults = ossap_stats_sites_block_settings_defaults();
+  $settings = variable_get(OSSAP_SITES_BLOCK_SETTINGS, $defaults);
+  $total_sites = variable_get('ossap_stats_total_sites', 0);
+  if ($settings['format'] == 'comma') {
+    $total_sites = number_format($total_sites);
+  }
+
+  // Builds a list of stats with 1 item.
+  $item_list = array(
+    '#theme' => 'item_list',
+    '#items' => array(
+      'total_sites' => array(
+        'data' => '<span class="number">' . $total_sites . '</span><span class="subtitle">' . $settings['subtitle'] . '</span>',
+        'class' => array('total-sites'),
+      ),
+    ),
+  );
+  // Adds the title if set.
+  if (strlen($settings['title']) && $settings['title'] != '<none>') {
+    $item_list['#title'] = $settings['title'];
+  }
+  $item_list = render($item_list);
+
+  // Puts the item list into a container for theme.
+  $build = array(
+    'container' => array(
+      '#theme' => 'container',
+      '#attributes' => array('id' => 'ossap-stats-sites'),
+      '#children' => $item_list,
+    ),
+  );
+
+  // Prepares the markup and attaches CSS for output.
+  $markup = render($build['container']);
+  $module_path = drupal_get_path('module', 'ossap_stats');
+  $block = array(
+    '#markup' => $markup,
+    '#attached' => array(
+      'css' => array($module_path . '/ossap_stats.css'),
+    ),
+  );
+  return $block;
+}
+
+/**
+ * Returns the default settings for the sites block.
+ */
+function ossap_stats_sites_block_settings_defaults() {
+  return array(
+    'title' => 'Statistics',
+    'format' => 'comma',
+    'subtitle' => 'total sites created',
+  );
+}
+
+/**
+ * Implements hook_cron_queue_info().
+ */
+function ossap_stats_cron_queue_info() {
+  $queue = array();
+
+  $queue['ossap_stats_block_queue'] = array(
+    'worker callback' => 'ossap_stats_block_worker',
+  );
+
+  return $queue;
+}
+
+/**
+ * Implements hook_cron().
+ */
+function ossap_stats_cron() {
+  $queue = DrupalQueue::get('ossap_stats_block_queue');
+  $queue->createQueue();
+  $blocks = array_keys(ossap_stats_block_info());
+  foreach ($blocks as $delta) {
+    $queue->createItem($delta);
+  }
+}
+
+/**
+ * Cron worker callback for OSSAP stats.
+ */
+function ossap_stats_block_worker($delta = '') {
+  switch ($delta) {
+    case 'ossap_stats_sites':
+      ossap_stats_sites_cron_worker();
+      break;
+  }
+}
+
+/**
+ * Cron queue worker for the ossap_stats_sites block.
+ *
+ * Invokes drupal_http_request on each child server to get total sites stats.
+ */
+function ossap_stats_sites_cron_worker() {
+  $count = 0;
+
+  $servers = variable_get('ossap_child_domains', array());
+  $domains = array_keys($servers);
+  $options = array();
+  foreach ($domains as $domain) {
+    $url = "http://$domain/stats";
+    $result = drupal_http_request($url, $options);
+    if (isset($result->data)) {
+      $data = drupal_json_decode($result->data);
+      if (isset($data['websites']['value'])) {
+        $count += $data['websites']['value'];
+      }
+    }
+  }
+
+  if ($count) {
+    variable_set('ossap_stats_total_sites', $count);
+  }
+}
