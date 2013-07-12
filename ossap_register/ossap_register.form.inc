@@ -33,6 +33,9 @@ function ossap_register_site_register_form($form, $form_state) {
   $domains = array_combine($domains, $domains);
 
   $form['#attached'] = array(
+    'library' => array(
+      array('system', 'ui.tabs'),
+    ),
     'js' => array(
       drupal_get_path('module', 'ossap_register').'/js/ossap_register.form.js',
       array(
@@ -67,6 +70,79 @@ function ossap_register_site_register_form($form, $form_state) {
     '#size' => 30,
   );
 
+  if (module_exists('pinserver') && pinserver_check_status()) {
+    $huid = pinserver_get_user_huid();
+
+    $pins = array();
+    // get user id
+    $derp = 0;
+    foreach ($servers as $d => $temp) {
+      // get user id from path
+      $path = 'http://'.$d.'/something/something';
+
+      $uid = $derp++;
+      $pins[$d] = $uid;
+
+    }
+
+    $form['#attached']['js'][1]['data']['ossap']['pins'] = $pins;
+  }
+
+  module_load_include('form.inc', 'vsite_register');
+  //@todo allow anything other than anon users
+  // Anonymous users must always create new accounts.
+  $form['tabs'] = array(
+    '#type' => 'container',
+    '#attributes' => array(
+      'id' => 'user-tabs',
+    ),
+    'links' => array(
+      '#theme' => 'links',
+      '#links' => array(
+        array(
+          'href' => '',
+          'external' => TRUE,
+          'fragment' => 'create',
+          'title' => t('Create User'),
+        ),
+        array(
+          'href' => '',
+          'external' => TRUE,
+          'fragment' => 'existing',
+          'title' => t('Existing User'),
+        )
+      ),
+    ),
+    'create' => array(
+      '#type' => 'container',
+      '#attributes' => array(
+        'id' => 'create',
+      ),
+      'user' => _vsite_register_user_form()
+    ),
+    'existing' => array(
+      '#type' => 'container',
+      '#attributes' => array(
+        'id' => 'existing'
+      ),
+      'desc' => array(
+        '#markup' => t('Login credentials for <span id="target-domain"></span>'),
+      ),
+      'username' => array(
+        '#type' => 'textfield',
+        '#title' => t('Username'),
+      ),
+    ),
+    'pin_user' => array(
+      '#type' => 'hidden',
+      '#default_value' => 0,
+      '#attributes' => array(
+        'id' => 'pin-user',
+      )
+    )
+  );
+  unset($form['tabs']['create']['user']['mail']['#ajax'], $form['tabs']['create']['user']['name']['#ajax']);
+
   $form['vsite_private'] = array(
     '#type' => 'radios',
     '#title' => t('Site visibility'),
@@ -75,103 +151,6 @@ function ossap_register_site_register_form($form, $form_state) {
     '#description' => t('Choose who has access to view your site.'),
     '#access' => module_exists('vsite_access'),
   );
-
-
-  if (module_exists('pinserver') && pinserver_check_status()) {
-    $huid = pinserver_get_user_huid();
-
-    $user_settings = array(
-      'type' => 'setting',
-      'data' => array(
-        'ossap' => array(
-          'pins' => array()
-        )
-      )
-    );
-    // get user id
-    foreach ($servers as $d => $temp) {
-      // get user id from path
-      $path = 'http://'.$d.'/something/something';
-
-      $uid = 0;
-      $user_settings['data']['ossap']['pins'][$d] = $uid;
-
-    }
-
-    $form['#attached']['js'][] = $user_settings;
-  }
-
-  module_load_include('form.inc', 'vsite_register');
-  //@todo allow anything other than anon users
-  if (TRUE || !user_is_logged_in()) {
-    // Anonymous users must always create new accounts.
-    $form += _vsite_register_user_form();
-    $form['vicarious_user'] = array(
-      '#type' => 'hidden',
-      '#value' => FALSE,
-    );
-    // Prepares flag for JS to set when create new user is clicked.
-    $form['user_fieldset']['create_new_user'] = array(
-      '#type' => 'hidden',
-      '#default_value' => TRUE,
-    );
-
-    unset($form['mail']['#ajax'], $form['name']['#ajax']);
-  }
-  elseif (user_access('create vsite content on behalf') && user_access('administer users')) {
-    // Managers may:
-    // - create a new site,
-    // - give a site to another user, or
-    // - give a site to a new account.
-    $form['vicarious_user'] = array(
-      '#type' => 'checkbox',
-      '#title' => t('Create this OS Site on behalf of another user.'),
-    );
-
-    $form['user_fieldset'] = array(
-      '#type' => 'fieldset',
-      '#collapsible' => FALSE,
-      '#states' => array('visible' => array(':input[name="vicarious_user"]' => array('checked' => TRUE))),
-    );
-
-    // $ajax_link = l(t('create a new user'), 'javascript:void(0)', array('attributes'=>array('id'=>array('new-user-link'))));
-    // @todo figure out l() later
-    $ajax_link = '<a href="javascript:void(0)" id="new-user-link">' . t('create a new user') . '</a>';
-
-    $form['user_fieldset']['existing_username'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Find Existing User'),
-      '#description' => t('Enter the name of the user who will manage this new site or !create_new.',
-        array('!create_new' => $ajax_link)
-      ),
-      '#autocomplete_path' => 'vsite/autocomplete/user',
-    );
-
-    // Prepares flag for JS to set when create new user is clicked.
-    $form['user_fieldset']['create_new_user'] = array(
-      '#type' => 'hidden',
-      '#default_value' => FALSE,
-    );
-
-    $form['user_fieldset']['new_user_div'] = array(
-      '#markup' => '<div id="new_user_div">',
-    );
-
-    $form['user_fieldset'] += _vsite_register_user_form();
-
-    $form['user_fieldset']['huid'] = array();
-
-    $form['user_fieldset']['new_user_close_div'] = array(
-      '#markup' => '</div>',
-    );
-  }
-  else {
-    // Regular users may only create sites for themselves.
-    $form['vicarious_user'] = array(
-      '#type' => 'value',
-      '#value' => FALSE,
-    );
-  }
 
   $form['submit'] = array(
     '#type' => 'submit',
@@ -183,7 +162,28 @@ function ossap_register_site_register_form($form, $form_state) {
     '#ajax' => array('callback' => 'ossap_register_site_register_form_submit'),
   );
 
+  $form['#validate'][] = 'ossap_register_site_register_form_user_validate';
+
   return $form;
+}
+
+/**
+ * Validates that a user entered with username and password exist on the target server
+ */
+function ossap_register_site_register_form_user_validate($form, &$form_state) {
+  $values = &$form_state['values'];
+  // they're trying to use an existing account
+  if (isset($values['username'])) {
+    $uid = ossap_user_exists($values['domain'], $values['username']);
+     if (!$uid) {
+       form_set_error($form['tabs']['existing'], t('Unrecognized username or email on %domain. Please reenter and try again.', array('%domain' => $values['domain'])));
+     }
+    else {
+      $values['uid'] = $uid;
+    }
+  }
+
+  return true;
 }
 
 /**
@@ -204,15 +204,16 @@ function ossap_register_site_register_form_submit(&$form, &$state) {
   //Holds true if we are creating a new user.
   $new_user = false;
 
+  if ($values['pin_user']) {
+    $site_owner = new stdClass();
+    $site_owner->uid = $values['pin_user'];
+    $uli = "USER_LOGIN_LINK";
+  }
   // If the specified user account already exists...
-  if ($values['vicarious_user'] && $values['existing_username']) {
-    // Loads that user account as site owner.
-    /**
-     * @todo Allow users to create site for existing users
-     */
-    //$site_owner = user_load_by_name($values['existing_username']);
-    watchdog('ossap_site_register',"Unable to create account for existing users.");
-    return FALSE;
+  elseif (isset($values['uid']) && $values['uid']) {
+    $site_owner = new stdClass();
+    $site_owner->uid = $values['uid'];
+    $uli = "USER_LOGIN_LINK";
   }
   elseif (($values['vicarious_user'] && !$values['existing_username']) || (!$values['vicarious_user'] && $values['name'])) {
     // Create user for current logged in user or on someone else's behalf.
