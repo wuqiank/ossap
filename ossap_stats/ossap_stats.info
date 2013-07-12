@@ -1,0 +1,3 @@
+name = "OSSAP Stats"
+description = "Statistics for OpenScholar Single Access Point (OSSAP)"
+core = 7.x

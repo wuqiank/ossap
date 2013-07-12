@@ -1,0 +1,145 @@
+<?php
+
+/**
+ * @file
+ * Statistics for OpenScholar Single Access Point (OSSAP).
+ */
+
+/**
+ * Defines the settings variable name for the total child sites count block.
+ */
+define('OSSAP_SITES_BLOCK_SETTINGS', 'ossap_stats_sites_settings');
+
+/**
+ * Implements hook_menu().
+ */
+function ossap_stats_menu() {
+  $items = array();
+
+  $items['ossap/stats/%'] = array(
+    'title' => t('OpenScholar Stats'),
+    'page callback' => '_ossap_stats_page',
+    'page arguments' => array(2),
+    'access arguments' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['ossap/stats/%/code'] = array(
+    'title' => t('OpenScholar Stats'),
+    'page callback' => '_ossap_stats_code',
+    'page arguments' => array(2),
+    'access arguments' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ * Page callback; formats and displays the embed code to paste on any site.
+ */
+function _ossap_stats_code($stat) {
+  // Formats the div tag whose innerText will be updated.
+  $id = "ossap-stats-$stat";
+  $div =  '<div id="' . $id . '"></div>';
+
+  // Formats the script tag which will find the value and update the div.
+  global $base_url;
+  $module_path = drupal_get_path('module', 'ossap_stats');
+  $script_path = "/$stat.js";
+  $src = $base_url . '/' . $module_path . $script_path;
+  $script = '<script type="text/javascript" src="' . $src . '"></script>';
+
+  // Appends the div tag and the script tag, prints to the page and exits.
+  $code = $div . $script;
+  print check_plain($code);
+  exit;
+}
+
+/**
+ * Page callback; routes between possible statistics to show.
+ */
+function _ossap_stats_page($stat) {
+  $content = '';
+  dpm($stat);
+  switch ($stat) {
+    case 'sites':
+      $content = _ossap_stats_sites_page();
+      break;
+  }
+
+  return $content;
+}
+
+/**
+ * Page callback; prints the number of sites to the page then exits.
+ */
+function _ossap_stats_sites_page() {
+  $total = variable_get('ossap_stats_total_sites', 0);
+  dpm($total);
+  print number_format($total);
+  exit;
+}
+
+/**
+ * Implements hook_cron_queue_info().
+ */
+function ossap_stats_cron_queue_info() {
+  $queue = array();
+
+  $queue['ossap_stats_queue'] = array(
+    'worker callback' => 'ossap_stats_block_worker',
+  );
+
+  return $queue;
+}
+
+/**
+ * Implements hook_cron().
+ */
+function ossap_stats_cron() {
+  $queue = DrupalQueue::get('ossap_stats_queue');
+  $queue->createQueue();
+  $stats = array('sites');
+  foreach ($stats as $stat) {
+    $queue->createItem($stat);
+  }
+}
+
+/**
+ * Cron worker callback for OSSAP stats.
+ */
+function ossap_stats_block_worker($stat = '') {
+  switch ($stat) {
+    case 'sites':
+      ossap_stats_sites_cron_worker();
+      break;
+  }
+}
+
+/**
+ * Cron queue worker for the ossap_stats_sites block.
+ *
+ * Invokes drupal_http_request on each child server to get total sites stats.
+ */
+function ossap_stats_sites_cron_worker() {
+  $count = 0;
+
+  $servers = variable_get('ossap_child_domains', array());
+  $domains = array_keys($servers);
+  $options = array();
+  foreach ($domains as $domain) {
+    $url = "http://$domain/stats";
+    $result = drupal_http_request($url, $options);
+    if (isset($result->data)) {
+      $data = drupal_json_decode($result->data);
+      if (isset($data['websites']['value'])) {
+        $count += $data['websites']['value'];
+      }
+    }
+  }
+
+  if ($count) {
+    variable_set('ossap_stats_total_sites', $count);
+  }
+}
