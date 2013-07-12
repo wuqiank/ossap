@@ -249,6 +249,7 @@ function ossap_register_site_register_form_submit(&$form, &$state) {
     //$site_owner = $user;
     watchdog('ossap_site_register',"Unable to create account for logged in Users.");
   }
+  dpm($site_owner);
 
   if($site_owner->uid){
 	  // Creates the vsite node.
@@ -260,6 +261,7 @@ function ossap_register_site_register_form_submit(&$form, &$state) {
 	  $visibility = isset($values['vsite_private']) ? $values['vsite_private'] : FALSE;
 
 	  $vsite = ossap_create_vsite($server ,$name, $purl, $author, $bundle, $preset, $parent, $visibility);
+    dpm($vsite);
 	  if(!$vsite){
 	    drupal_set_message("Unable to create site, support has been notified.  Please contact customer support for assistance.",'error');
 	  }
