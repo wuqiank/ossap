@@ -264,6 +264,9 @@ function ossap_register_site_register_form_submit(&$form, &$state) {
 	    drupal_set_message("Unable to create site, support has been notified.  Please contact customer support for assistance.",'error');
 	  }
   }
+  else {
+    $commands[] = ajax_command_replace('#submit-suffix', 'No user found to make site owner.');
+  }
 
   if ($vsite) {
 
