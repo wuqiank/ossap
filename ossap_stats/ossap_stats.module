@@ -16,23 +16,35 @@ define('OSSAP_SITES_BLOCK_SETTINGS', 'ossap_stats_sites_settings');
 function ossap_stats_menu() {
   $items = array();
 
-  $items['ossap/stats/%'] = array(
-    'title' => t('OpenScholar Stats'),
-    'page callback' => '_ossap_stats_page',
-    'page arguments' => array(2),
-    'access arguments' => TRUE,
-    'type' => MENU_CALLBACK,
-  );
-
   $items['ossap/stats/%/code'] = array(
     'title' => t('OpenScholar Stats'),
     'page callback' => '_ossap_stats_code',
     'page arguments' => array(2),
-    'access arguments' => TRUE,
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['ossap/stats/%/embed.js'] = array(
+    'title' => t('OpenScholar Stats'),
+    'page callback' => '_ossap_stats_embed_js',
+    'page arguments' => array(2),
+    'access callback' => TRUE,
     'type' => MENU_CALLBACK,
   );
 
   return $items;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function ossap_stats_theme() {
+  return array(
+    'ossap_stats_embed_js' => array(
+      'variables' => array('total' => NULL),
+      'template' => 'ossap-stats-embed-js',
+    ),
+  );
 }
 
 /**
@@ -45,9 +57,8 @@ function _ossap_stats_code($stat) {
 
   // Formats the script tag which will find the value and update the div.
   global $base_url;
-  $module_path = drupal_get_path('module', 'ossap_stats');
-  $script_path = "/$stat.js";
-  $src = $base_url . '/' . $module_path . $script_path;
+  $script_path = "/ossap/stats/$stat/embed.js";
+  $src = $base_url . $script_path;
   $script = '<script type="text/javascript" src="' . $src . '"></script>';
 
   // Appends the div tag and the script tag, prints to the page and exits.
@@ -56,29 +67,21 @@ function _ossap_stats_code($stat) {
   exit;
 }
 
+
 /**
- * Page callback; routes between possible statistics to show.
+ * Page callback; formats and displays the embed code to paste on any site.
  */
-function _ossap_stats_page($stat) {
-  $content = '';
-  dpm($stat);
+function _ossap_stats_embed_js($stat) {
   switch ($stat) {
     case 'sites':
-      $content = _ossap_stats_sites_page();
-      break;
+      // Fetches the latest total sites variable value.
+      $total = variable_get('ossap_stats_total_sites', 0);
+      // Inserts commas like "1,000".
+      $total = number_format($total);
+      dpm($total);
+      print theme('ossap_stats_embed_js', array('total' => $total));
+      exit;
   }
-
-  return $content;
-}
-
-/**
- * Page callback; prints the number of sites to the page then exits.
- */
-function _ossap_stats_sites_page() {
-  $total = variable_get('ossap_stats_total_sites', 0);
-  dpm($total);
-  print number_format($total);
-  exit;
 }
 
 /**
