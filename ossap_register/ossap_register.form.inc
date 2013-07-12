@@ -286,6 +286,7 @@ function ossap_register_site_register_form_submit(&$form, &$state) {
   else {
     $commands[] = _vsite_register_form_error();
   }
+  $commands[] = ajax_command_prepend('#messages', theme('status_messages'));
 
   print ajax_render($commands);
   exit;
