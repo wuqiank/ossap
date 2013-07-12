@@ -20,7 +20,7 @@ function ossap_stats_menu() {
     'title' => t('OpenScholar Stats'),
     'page callback' => '_ossap_stats_page',
     'page arguments' => array(2),
-    'access arguments' => TRUE,
+    'access callback' => TRUE,
     'type' => MENU_CALLBACK,
   );
 
@@ -28,7 +28,7 @@ function ossap_stats_menu() {
     'title' => t('OpenScholar Stats'),
     'page callback' => '_ossap_stats_code',
     'page arguments' => array(2),
-    'access arguments' => TRUE,
+    'access callback' => TRUE,
     'type' => MENU_CALLBACK,
   );
 
@@ -61,7 +61,6 @@ function _ossap_stats_code($stat) {
  */
 function _ossap_stats_page($stat) {
   $content = '';
-  dpm($stat);
   switch ($stat) {
     case 'sites':
       $content = _ossap_stats_sites_page();
@@ -76,7 +75,6 @@ function _ossap_stats_page($stat) {
  */
 function _ossap_stats_sites_page() {
   $total = variable_get('ossap_stats_total_sites', 0);
-  dpm($total);
   print number_format($total);
   exit;
 }
