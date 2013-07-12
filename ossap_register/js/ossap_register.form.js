@@ -151,18 +151,18 @@
     if (typeof pins == 'undefined') {
       $('#user-tabs').show();
     }
-    else {
-      for (var i in servers) {
-        if ($.inArray(domain, servers[i]['domains']) != -1 && 'http://'+i in purls) {
+    for (var i in servers) {
+      if ($.inArray(domain, servers[i]['domains']) != -1 && 'http://'+i in purls) {
+        if (typeof pins != 'undefined') {
           $('#pin-user').val(pins[i]);
           if (pins[i]) {
             $('#user-tabs').hide();
           }
           else {
             $('#user-tabs').show();
-            $('#target-domain').html('http://'+domain);
           }
         }
+        $('#target-domain').html('http://'+domain);
       }
     }
   }
