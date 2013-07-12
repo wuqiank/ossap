@@ -18,10 +18,11 @@ function ossap_httpRequest($url, $method, $user_pass = NULL, $body = NULL, $form
   	    CURLOPT_NOBODY => FALSE)
   	  );
   	case 'POST':
-  	  $debug_cookie = "start_debug=1; debug_fastfile=1; debug_host=localhost,127.0.0.1; use_remote=1; debug_port=10137; original_url=http://localhost/node; debug_stop=1; debug_session_id=1005;";
+  	  //Uncomment the two following lines to debug curl requests via Zend
+  	  //$debug_cookie = "start_debug=1; debug_fastfile=1; debug_host=localhost,127.0.0.1; use_remote=1; debug_port=10137; original_url=http://localhost/node; debug_stop=1; debug_session_id=1005;";
   	  return ossap_curlExec(array(
   	  CURLOPT_HTTPGET => FALSE,
-  	  CURLOPT_COOKIE => $debug_cookie,
+  	  //CURLOPT_COOKIE => $debug_cookie,
   	  CURLOPT_USERPWD => $user_pass,
   	  CURLOPT_POST => TRUE,
   	  CURLOPT_POSTFIELDS => $body,

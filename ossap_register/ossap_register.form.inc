@@ -201,6 +201,9 @@ function ossap_register_site_register_form_submit(&$form, &$state) {
    */
   $server = $values['domain'];
 
+  //Holds true if we are creating a new user.
+  $new_user = false;
+
   // If the specified user account already exists...
   if ($values['vicarious_user'] && $values['existing_username']) {
     // Loads that user account as site owner.
@@ -208,14 +211,14 @@ function ossap_register_site_register_form_submit(&$form, &$state) {
      * @todo Allow users to create site for existing users
      */
     //$site_owner = user_load_by_name($values['existing_username']);
-    error_log("Unable to create account for existing users.");
+    watchdog('ossap_site_register',"Unable to create account for existing users.");
     return FALSE;
   }
   elseif (($values['vicarious_user'] && !$values['existing_username']) || (!$values['vicarious_user'] && $values['name'])) {
     // Create user for current logged in user or on someone else's behalf.
     $user_options = array(
       'name' => $values['name'],
-  //    'pass' => $values['password'],
+      'pass' => $values['password'],
       'mail' => $values['mail'],
       'status' => 1,
       'field_first_name' => $values['first_name'],
@@ -223,13 +226,18 @@ function ossap_register_site_register_form_submit(&$form, &$state) {
     );
 
     $site_owner = ossap_user_create($server, $user_options);
-		if(!$site_owner->uid){
-		  error_log("Unable to create account.");
-		  return FALSE;
+		if(!isset($site_owner->id)){
+		  watchdog('ossap_site_register',"Unable to create user account via callback.");
+		  drupal_set_message("Unable to create user account, support has been notified. Please contact customer support for assistance.",'error');
+		}else{
+		  $new_user = true;
+		  //Create user object
+		  $site_owner->uid = $site_owner->id;
+		  $site_owner->name = $user_options['name'];
 		}
 
     // Logs in as the new user, if we're not already logged in.
-    $uli = "USER_LOGIN_LINK";
+    $user_token = "USER_LOGIN_TOKEN";
   }
   else {
     /**
@@ -238,30 +246,32 @@ function ossap_register_site_register_form_submit(&$form, &$state) {
     // Creates site for current logged in user. No need to create a new user.
     //global $user;
     //$site_owner = $user;
-    error_log("Unable to create account for logged in Users.");
-    return FALSE;
+    watchdog('ossap_site_register',"Unable to create account for logged in Users.");
   }
 
-  // Creates the vsite node.
-  $name = $purl = $values['purl'];
-  $author = $site_owner->uid;
-  $bundle = $values['site_type'];
-  $preset = $values['preset'];
-  $parent = $_POST['parent'] ? $_POST['parent'] : FALSE;
-  $visibility = isset($values['vsite_private']) ? $values['vsite_private'] : FALSE;
+  if($site_owner->uid){
+	  // Creates the vsite node.
+	  $name = $purl = $values['purl'];
+	  $author = $site_owner->uid;
+	  $bundle = $values['site_type'];
+	  $preset = $values['preset'];
+	  $parent = $_POST['parent'] ? $_POST['parent'] : FALSE;
+	  $visibility = isset($values['vsite_private']) ? $values['vsite_private'] : FALSE;
 
-  $vsite = ossap_create_vsite($server ,$name, $purl, $author, $bundle, $preset, $parent, $visibility);
+	  $vsite = ossap_create_vsite($server ,$name, $purl, $author, $bundle, $preset, $parent, $visibility);
+	  if(!$vsite){
+	    drupal_set_message("Unable to create site, support has been notified.  Please contact customer support for assistance.",'error');
+	  }
+  }
+
   if ($vsite) {
 
-    $message = vsite_register_message($form, $values['domain']);
+    $now = time();
+    $login_destination = "site/login/once/{$vsite->nid}/{$site_owner->uid}/{$now}/{$user_token}";
+
+    $message = ossap_vsite_register_message($form, $values['domain'], $values['purl'], $login_destination, $new_user, $values['vicarious_user']);
     $commands[] = ajax_command_replace('#submit-suffix', $message);
     $commands[] = ajax_command_remove('#edit-submit');
-
-    // Emails user to inform them of new created site, email is always sent.
-    // This function may additionally send a second email to a specified
-    // administrator's email address.
-    // @see vsite_register_admin_form()
-    vsite_register_notify($vsite);
 
     // If we have gotten to this point, then the vsite registration was success.
     // Clears the errors.

@@ -71,9 +71,16 @@ function ossap_create_vsite($domain ,$name, $purl, $author, $bundle, $preset, $p
   module_load_include('inc', 'ossap_register', 'includes/ossap_resthelper');
   $json = drupal_json_encode($new_site);
   $result = ossap_httpRequest("http://{$domain}/node", 'POST', $rest_auth, $json);
-  $vsite = drupal_json_decode($result);
+  $return = drupal_json_decode($result);
 
-  return (object) $vsite;
+  if(!isset($return['id'])){
+    return false;
+  }
+
+  //Add vsite nid
+  $new_site['nid'] = $return['id'];
+
+  return (object) $new_site;
 }
 
 /**
@@ -95,4 +102,59 @@ function ossap_user_create($domain, $user_options){
   $user = drupal_json_decode($result);
 
   return (object) $user;
+}
+
+/**
+ * Generates the success message to display when vsite register form is submited.
+ *
+ * @return string $message
+ *   The message shown to site owners after a successful web site registration.
+ */
+function ossap_vsite_register_message($form, $domain, $purl, $href, $user_is_anonymous = true, $created_on_behalf = false) {
+
+  // Displays "the site" or "your site" depending on current users' permission.
+  if ($created_on_behalf) {
+    $whose_site = 'the';
+  }
+  else {
+    $whose_site = 'your';
+  }
+
+  $link = l(t('Go there now &raquo;'), $href, array(
+    'html' => TRUE,
+    'attributes' => array(
+      'title' => t('Visit your new site now'),
+      'class' => array('os-green-button')
+    )
+  ));
+
+  // Prepares an array of messages to display to the user,
+  // to be rendered each as individual paragraph elements.
+  $paragraphs = array();
+  $paragraphs[] = t('Success! @whose new site has been created.', array('@whose' => ucfirst($whose_site)));
+  if ($user_is_anonymous) {
+    $paragraphs[] = t('Check your email account for further details on how to login in to start adding features and content.');
+  }
+  $paragraphs[] = t('The url of @whose site is @base_url/@domain '. $link, array('@whose' => $whose_site, '@base_url' => $domain, '@domain' => $purl));
+
+  // Prepares the build array for other modules to modify.
+  $build = array(
+    'container' => array(
+      '#type' => 'container',
+      '#attributes' => array(
+        'id' => 'success-message',
+        'class' => array('status'),
+      ),
+      'message_text' => array(
+        '#type' => 'markup',
+        '#markup' => '<p>' . implode('</p><p>', $paragraphs) . '</p>',
+      ),
+    ),
+  );
+
+  // Gives other modules a chance to alter message
+  module_invoke_all('vsite_register_message', $build, $form, $purl);
+  $message = drupal_render($build);
+
+  return $message;
 }
