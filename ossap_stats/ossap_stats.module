@@ -78,7 +78,7 @@ function _ossap_stats_embed_js($stat) {
       $total = variable_get('ossap_stats_total_sites', 0);
       // Inserts commas like "1,000".
       $total = number_format($total);
-      dpm($total);
+      drupal_add_http_header('Content-Type', 'text/javascript; charset=utf-8');
       print theme('ossap_stats_embed_js', array('total' => $total));
       exit;
   }
