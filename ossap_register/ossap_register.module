@@ -61,6 +61,9 @@ function ossap_create_vsite($domain ,$name, $purl, $author, $bundle, $preset, $p
   }
 
   $servers = variable_get('ossap_child_domains', array());
+  if (is_string($servers)) {
+    $servers = explode(',', $servers);
+  }
   if(isset($servers[$domain]['restuser'])){
     $rest_auth = $servers[$domain]['restuser'];
   }else{
@@ -89,6 +92,9 @@ function ossap_create_vsite($domain ,$name, $purl, $author, $bundle, $preset, $p
  */
 function ossap_user_create($domain, $user_options){
   $servers = variable_get('ossap_child_domains', array());
+  if (is_string($servers)) {
+    $servers = explode(',', $servers);
+  }
   if(isset($servers[$domain]['restuser'])){
     $rest_auth = $servers[$domain]['restuser'];
   }else{
@@ -108,8 +114,10 @@ function ossap_user_create($domain, $user_options){
  * Checks if a user with these credentials exists
  */
 function ossap_user_exists($domain, $username) {
-
   $servers = variable_get('ossap_child_domains', array());
+  if (is_string($servers)) {
+    $servers = explode(',', $servers);
+  }
   if (isset($servers[$domain]['restuser'])){
     $rest_auth = $servers[$domain]['restuser'];
   }
@@ -179,4 +187,27 @@ function ossap_vsite_register_message($form, $domain, $purl, $href, $user_is_ano
   $message = drupal_render($build);
 
   return $message;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for os_settings_form.
+ */
+function ossap_register_form_os_settings_form_alter(&$form, &$form_state, $form_id) {
+  $default_value = variable_get('ossap_child_domains', '');
+  if (is_array($default_value)) {
+    $default_value = implode(',', $default_value);
+  }
+  $form['ossap'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Single Access Point'),
+    '#weight' => 15,
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  $form['ossap']['ossap_child_domains'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Child domains'),
+    '#weight' => 1,
+    '#default_value' => $default_value,
+  );
 }
