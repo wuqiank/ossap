@@ -5,16 +5,17 @@
  * Javascript source to print the total sites onto the page.
  */
 
-if (empty($total)) {
-  $total = "0";
+if(empty($stats)){
+  $stats = array();
 }
-
 ?>
+
+
 /** Updates the div element to contain the latest total number of vsites. */
-function ossapStatsUpdateDiv() {
-  var div = document.getElementById('ossap-stats-sites');
-  if (typeof div !== 'undefined' && div !== null) {
-    div.innerText = '<?php print $total; ?>';
-  }
+function ossapStatsGet(stat) {
+<?php
+foreach (variable_get('os_stats_enabled',array('websites')) as $stat){
+  echo "if (stat == '{$stat}') {\nreturn '{$stats[$stat]}'; ?>';\n}\n";
 }
-ossapStatsUpdateDiv();
+?>
+}
