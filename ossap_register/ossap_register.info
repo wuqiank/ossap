@@ -2,3 +2,9 @@ name = "OSSAP Register"
 description = "Allows registering a vsite on another server"
 core = 7.x
 dependencies[] = "vsite_register"
+
+; Information added by drush on 2013-12-04
+version = "unknown"
+project = "ossap"
+datestamp = "1386192707"
+

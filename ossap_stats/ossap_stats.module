@@ -41,7 +41,7 @@ function ossap_stats_menu() {
 function ossap_stats_theme() {
   return array(
     'ossap_stats_embed_js' => array(
-      'variables' => array('total' => NULL),
+      'variables' => array('stats' => array() ),
       'template' => 'ossap-stats-embed-js',
     ),
   );
@@ -75,11 +75,14 @@ function _ossap_stats_embed_js($stat) {
   switch ($stat) {
     case 'sites':
       // Fetches the latest total sites variable value.
-      $total = variable_get('ossap_stats_total_sites', 0);
+      $stats = variable_get('ossap_stats_stats', array());
       // Inserts commas like "1,000".
-      $total = number_format($total);
+      foreach ($stats as $key => $number){
+        $stats[$key] = number_format($number);
+      }
+
       drupal_add_http_header('Content-Type', 'text/javascript; charset=utf-8');
-      print theme('ossap_stats_embed_js', array('total' => $total));
+      print theme('ossap_stats_embed_js', array('stats' => $stats));
       exit;
   }
 }
@@ -126,7 +129,7 @@ function ossap_stats_block_worker($stat = '') {
  * Invokes drupal_http_request on each child server to get total sites stats.
  */
 function ossap_stats_sites_cron_worker() {
-  $count = 0;
+  $stats = array();
 
   $servers = variable_get('ossap_child_domains', array());
   $domains = array_keys($servers);
@@ -136,13 +139,18 @@ function ossap_stats_sites_cron_worker() {
     $result = drupal_http_request($url, $options);
     if (isset($result->data)) {
       $data = drupal_json_decode($result->data);
-      if (isset($data['websites']['value'])) {
-        $count += $data['websites']['value'];
-      }
+	    foreach (variable_get('os_stats_enabled',array('websites')) as $stat){
+		    if (isset($data[$stat]['value'])) {
+		      if(!isset($stats[$stat])){
+		        $stats[$stat] = 0;
+		      }
+	        $stats[$stat] += $data[$stat]['value'];
+	      }
+			}
     }
   }
 
   if ($count) {
-    variable_set('ossap_stats_total_sites', $count);
+    variable_set('ossap_stats_stats', $stats);
   }
 }
