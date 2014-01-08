@@ -16,6 +16,14 @@ define('OSSAP_SITES_BLOCK_SETTINGS', 'ossap_stats_sites_settings');
 function ossap_stats_menu() {
   $items = array();
 
+  $items['ossap/stats'] = array(
+    'title' => t('OpenScholar SAP stats'),
+    'page callback' => '_ossap_stats_page',
+    'page arguments' => array(2),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+
   $items['ossap/stats/%/code'] = array(
     'title' => t('OpenScholar Stats'),
     'page callback' => '_ossap_stats_code',
