@@ -150,8 +150,10 @@ function ossap_stats_block_worker($stat = '') {
  * Invokes drupal_http_request on each child server to get total sites stats.
  */
 function ossap_stats_sites_cron_worker() {
-  $stats = array();
+  $aggregates = array();
 
+  $stat_keys = array_keys(_os_stats_queries());
+  $unsummable = array('filesize');
   $servers = variable_get('ossap_child_domains', array());
   $domains = array_keys($servers);
   $options = array();
@@ -160,18 +162,21 @@ function ossap_stats_sites_cron_worker() {
     $result = drupal_http_request($url, $options);
     if (isset($result->data)) {
       $data = drupal_json_decode($result->data);
-	    foreach (variable_get('os_stats_enabled',array('websites')) as $stat){
+	    foreach ($stat_keys as $stat) {
+        if (in_array($stat, $unsummable)) {
+          continue;
+        }
 		    if (isset($data[$stat]['value'])) {
-		      if(!isset($stats[$stat])){
-		        $stats[$stat] = 0;
+		      if(!isset($aggregates[$stat])){
+            $aggregates[$stat] = 0;
 		      }
-	        $stats[$stat] += $data[$stat]['value'];
+          $aggregates[$stat] += $data[$stat]['value'];
 	      }
 			}
     }
   }
 
-  if ($count) {
-    variable_set('ossap_stats_stats', $stats);
+  if (count($aggregates)) {
+    variable_set('ossap_stats_stats', $aggregates);
   }
 }
