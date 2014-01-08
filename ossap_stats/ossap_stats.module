@@ -56,6 +56,19 @@ function ossap_stats_theme() {
 }
 
 /**
+ * Page callback; exposes all OSSAP stats in one JSON object.
+ */
+function _ossap_stats_page() {
+  $data = array(
+    'success' => TRUE,
+    'child_domains' => variable_get('ossap_child_domains', array()),
+    'aggregates' => variable_get('ossap_stats_stats', array()),
+  );
+  
+  drupal_json_output($data);
+}
+
+/**
  * Page callback; formats and displays the embed code to paste on any site.
  */
 function _ossap_stats_code($stat) {
