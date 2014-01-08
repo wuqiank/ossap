@@ -46,9 +46,9 @@ if (empty($aggregates)) {
   // Total <?php echo $key; ?>
 
   var elem = document.getElementById('ossap-stats-<?php echo $key; ?>');
-  if (typeof div !== 'undefined' && div !== null) {
+  if (typeof elem !== 'undefined' && elem !== null) {
     <?php $value = ($key == 'filesize_bytes') ? format_size($value) : $value ?>
-    div.innerText = '<?php echo $value; ?>';
+    elem.innerText = '<?php echo $value; ?>';
   }
 
 <? endforeach; ?>
