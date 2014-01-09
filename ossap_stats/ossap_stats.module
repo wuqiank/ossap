@@ -24,15 +24,7 @@ function ossap_stats_menu() {
     'type' => MENU_CALLBACK,
   );
 
-  $items['ossap/stats/%/code'] = array(
-    'title' => t('OpenScholar Stats'),
-    'page callback' => '_ossap_stats_code',
-    'page arguments' => array(2),
-    'access callback' => TRUE,
-    'type' => MENU_CALLBACK,
-  );
-
-  $items['ossap/stats/%/embed.js'] = array(
+  $items['ossap/stats.js'] = array(
     'title' => t('OpenScholar Stats'),
     'page callback' => '_ossap_stats_embed_js',
     'page arguments' => array(2),
@@ -62,50 +54,20 @@ function _ossap_stats_page() {
   $data = array(
     'success' => TRUE,
     'child_domains' => variable_get('ossap_child_domains', array()),
-    'aggregates' => variable_get('ossap_stats_stats', array()),
+    'aggregates' => variable_get('ossap_stats_aggregates', array()),
   );
-  
+
   drupal_json_output($data);
 }
 
 /**
  * Page callback; formats and displays the embed code to paste on any site.
  */
-function _ossap_stats_code($stat) {
-  // Formats the div tag whose innerText will be updated.
-  $id = "ossap-stats-$stat";
-  $div =  '<div id="' . $id . '"></div>';
-
-  // Formats the script tag which will find the value and update the div.
-  global $base_url;
-  $script_path = "/ossap/stats/$stat/embed.js";
-  $src = $base_url . $script_path;
-  $script = '<script type="text/javascript" src="' . $src . '"></script>';
-
-  // Appends the div tag and the script tag, prints to the page and exits.
-  $code = $div . $script;
-  print check_plain($code);
-  exit;
-}
-
-
-/**
- * Page callback; formats and displays the embed code to paste on any site.
- */
 function _ossap_stats_embed_js($stat) {
-  switch ($stat) {
-    case 'sites':
-      // Fetches the latest total sites variable value.
-      $stats = variable_get('ossap_stats_stats', array());
-      // Inserts commas like "1,000".
-      foreach ($stats as $key => $number){
-        $stats[$key] = number_format($number);
-      }
-
-      drupal_add_http_header('Content-Type', 'text/javascript; charset=utf-8');
-      print theme('ossap_stats_embed_js', array('stats' => $stats));
-      exit;
-  }
+  drupal_add_http_header('Content-Type', 'text/javascript; charset=utf-8');
+  $aggregates = variable_get('ossap_stats_aggregates', array());
+  print theme('ossap_stats_embed_js', array('aggregates' => $aggregates));
+  exit;
 }
 
 /**
@@ -177,6 +139,6 @@ function ossap_stats_sites_cron_worker() {
   }
 
   if (count($aggregates)) {
-    variable_set('ossap_stats_stats', $aggregates);
+    variable_set('ossap_stats_aggregates', $aggregates);
   }
 }
