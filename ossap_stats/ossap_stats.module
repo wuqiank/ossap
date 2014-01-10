@@ -51,9 +51,15 @@ function ossap_stats_theme() {
  * Page callback; exposes all OSSAP stats in one JSON object.
  */
 function _ossap_stats_page() {
+  $child_domains = variable_get('ossap_child_domains', array());
+  foreach ($child_domains as $url => $info) {
+    if (isset($info['restuser'])) {
+      unset($info['restuser']);
+    }
+  }
   $data = array(
     'success' => TRUE,
-    'child_domains' => variable_get('ossap_child_domains', array()),
+    'child_domains' => $child_domains,
     'aggregates' => variable_get('ossap_stats_aggregates', array()),
   );
 
