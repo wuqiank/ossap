@@ -54,7 +54,7 @@ function _ossap_stats_page() {
   $child_domains = variable_get('ossap_child_domains', array());
   foreach ($child_domains as $url => $info) {
     if (isset($info['restuser'])) {
-      unset($info['restuser']);
+      unset($child_domains[$url]['restuser']);
     }
   }
   $data = array(
