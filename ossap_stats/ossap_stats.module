@@ -130,17 +130,17 @@ function ossap_stats_sites_cron_worker() {
     $result = drupal_http_request($url, $options);
     if (isset($result->data)) {
       $data = drupal_json_decode($result->data);
-	    foreach ($stat_keys as $stat) {
+      foreach ($stat_keys as $stat) {
         if (in_array($stat, $unsummable)) {
           continue;
         }
-		    if (isset($data[$stat]['value'])) {
-		      if(!isset($aggregates[$stat])){
+        if (isset($data[$stat]['value'])) {
+          if(!isset($aggregates[$stat])){
             $aggregates[$stat] = 0;
-		      }
+          }
           $aggregates[$stat] += $data[$stat]['value'];
-	      }
-			}
+        }
+      }
     }
   }
 
