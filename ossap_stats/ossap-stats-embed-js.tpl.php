@@ -11,8 +11,7 @@
  * values.
  */
 
-global $base_url;
-$src = "$base_url/ossap/stats.js";
+$src = url('ossap/stats.js', array('absolute' => TRUE));
 ?>
 /**
  * Include this JS file to embed aggregated OpenScholar SAP stats on any page.
