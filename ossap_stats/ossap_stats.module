@@ -51,16 +51,20 @@ function ossap_stats_theme() {
  * Page callback; exposes all OSSAP stats in one JSON object.
  */
 function _ossap_stats_page() {
+  // Prepares a safe version of the child_domains variable to expose.
   $child_domains = variable_get('ossap_child_domains', array());
   foreach ($child_domains as $url => $info) {
     if (isset($info['restuser'])) {
       unset($child_domains[$url]['restuser']);
     }
   }
+
+  // Prepares the data array to render to the page as JSON.
   $data = array(
     'success' => TRUE,
     'child_domains' => $child_domains,
     'aggregates' => variable_get('ossap_stats_aggregates', array()),
+    'os_version' => _ossap_stats_get_os_version(),
   );
 
   drupal_json_output($data);
@@ -72,7 +76,12 @@ function _ossap_stats_page() {
 function _ossap_stats_embed_js($stat) {
   drupal_add_http_header('Content-Type', 'text/javascript; charset=utf-8');
   $aggregates = variable_get('ossap_stats_aggregates', array());
-  print theme('ossap_stats_embed_js', array('aggregates' => $aggregates));
+  $variables = array(
+    'aggregates' => $aggregates,
+    'os_version' => _ossap_stats_get_os_version(),
+  );
+
+  print theme('ossap_stats_embed_js', $variables);
   exit;
 }
 
@@ -147,4 +156,18 @@ function ossap_stats_sites_cron_worker() {
   if (count($aggregates)) {
     variable_set('ossap_stats_aggregates', $aggregates);
   }
+}
+
+/**
+ * Gets current OpenScholar release version string, like "3.10".
+ */
+function _ossap_stats_get_os_version() {
+  // Parses the info file to get os_version.
+  $path = drupal_get_path('profile', 'openscholar') . '/openscholar.info';
+  $info = drupal_parse_info_file($path);
+
+  // Removes the Drupal major version number prefix (i.e. "7.x-").
+  $os_version = substr($info['os_version'], 4);
+
+  return $os_version;
 }
