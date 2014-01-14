@@ -67,6 +67,12 @@ function _ossap_stats_page() {
     'os_version' => _ossap_stats_get_os_version(),
   );
 
+  // Adds GetSatisfaction statistics if any statistics exist.
+  $getsatisfaction = variable_get('ossap_stats_getsatisfaction', NULL);
+  if ($getsatisfaction !== NULL) {
+    $data['getsatisfaction'] = $getsatisfaction;
+  }
+
   drupal_json_output($data);
 }
 
@@ -104,7 +110,7 @@ function ossap_stats_cron_queue_info() {
 function ossap_stats_cron() {
   $queue = DrupalQueue::get('ossap_stats_queue');
   $queue->createQueue();
-  $stats = array('sites');
+  $stats = array('sites', 'getsatisfaction');
   foreach ($stats as $stat) {
     $queue->createItem($stat);
   }
@@ -118,6 +124,21 @@ function ossap_stats_block_worker($stat = '') {
     case 'sites':
       ossap_stats_sites_cron_worker();
       break;
+    case 'getsatisfaction':
+      ossap_stats_getsatisfaction_cron_worker();
+      break;
+  }
+}
+
+function ossap_stats_getsatisfaction_cron_worker() {
+  $function = 'getsatisfaction_integration_stats';
+  if (!function_exists($function)) {
+    return;
+  }
+
+  $getsatisfaction_stats = $function();
+  if (!empty($getsatisfaction_stats)) {
+    variable_set('ossap_stats_getsatisfaction', $getsatisfaction_stats);
   }
 }
 
