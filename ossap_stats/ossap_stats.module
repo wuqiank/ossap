@@ -100,7 +100,6 @@ function _ossap_stats_embed_js($stat) {
       '#items' => $items,
       '#attributes' => array('class' => array('ossap-stats-embed-messages')),
     );
-    //$messages = str_replace(array("\r", "\n"), '', drupal_render($build));
     $messages = json_encode(drupal_render($build));
   }
   $variables = array(
