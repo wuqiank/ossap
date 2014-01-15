@@ -38,11 +38,11 @@ if (empty($aggregates)) {
  * Your HTML markup may use any of the following id attributes to get numbers:
  * @code
 <? foreach ($aggregates as $key => $value): ?>
- * <div id="ossap-stats-<?php echo $key; ?>"></div>
+ * <span class="ossap-stats-<?php echo $key; ?>"></span>
 <? endforeach; ?>
  * @endcode
  *
- * Note: The examples above use DIV tags, but you may use SPAN, P, etc.
+ * Note: The examples above use SPAN tags, but you may use DIV, P, etc.
  *
  * @see https://github.com/openscholar/ossap
  */
