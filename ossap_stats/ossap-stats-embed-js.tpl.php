@@ -16,7 +16,9 @@ $src = url('ossap/stats.js', array('absolute' => TRUE));
 if (isset($os_version)) {
   $aggregates['os_version'] = $os_version;
 }
-
+if (isset($messages) && !empty($messages)) {
+  $aggregates['activity-messages'] = $messages;
+}
 ?>
 /**
  * Include this JS file to embed aggregated OpenScholar SAP stats on any page.
@@ -53,8 +55,8 @@ if (empty($aggregates)) {
   var elem = document.getElementById('ossap-stats-<?php echo $key; ?>');
   if (typeof elem !== 'undefined' && elem !== null) {
     <?php $value = ($key == 'filesize_bytes') ? format_size($value) : $value ?>
-    elem.innerText = '<?php echo $value; ?>';
     <?php $value = (is_numeric($value)) ? number_format($value) : $value ?>
+    elem.innerHTML = '<?php echo $value; ?>';
   }
 
 <? endforeach; ?>
