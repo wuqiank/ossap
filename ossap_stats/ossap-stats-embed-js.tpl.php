@@ -11,8 +11,12 @@
  * values.
  */
 
-global $base_url;
-$src = "$base_url/ossap/stats.js";
+$src = url('ossap/stats.js', array('absolute' => TRUE));
+
+if (isset($os_version)) {
+  $aggregates['os_version'] = $os_version;
+}
+
 ?>
 /**
  * Include this JS file to embed aggregated OpenScholar SAP stats on any page.
@@ -40,10 +44,11 @@ if (empty($aggregates)) {
  *
  * @see https://github.com/openscholar/ossap
  */
+
 (function(){
 
 <? foreach ($aggregates as $key => $value): ?>
-  // Total <?php echo $key; ?>
+  // Current <?php echo $key; ?>
 
   var elem = document.getElementById('ossap-stats-<?php echo $key; ?>');
   if (typeof elem !== 'undefined' && elem !== null) {
