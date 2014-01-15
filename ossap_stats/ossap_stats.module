@@ -41,7 +41,12 @@ function ossap_stats_menu() {
 function ossap_stats_theme() {
   return array(
     'ossap_stats_embed_js' => array(
-      'variables' => array('stats' => array() ),
+      'variables' => array(
+        'aggregates' => NULL,
+        'os_version' => NULL,
+        'messages' => NULL,
+        'getsatisfaction' => NULL,
+      ),
       'template' => 'ossap-stats-embed-js',
     ),
   );
@@ -89,9 +94,11 @@ function _ossap_stats_embed_js($stat) {
   drupal_add_http_header('Content-Type', 'text/javascript; charset=utf-8');
   $aggregates = variable_get('ossap_stats_aggregates', array());
 
+  // Prepares any available GetSatisfaction statistics.
+  $getsatisfaction = variable_get('ossap_stats_getsatisfaction', array());
   // Prepares the activity messages.
   $messages = '';
-  $activity = variable_get('ossap_stats_activity');
+  $activity = variable_get('ossap_stats_activity', array());
   if (isset($activity['messages']) && !empty($activity['messages'])) {
     $count = variable_get('ossap_stats_embed_message_count', OSSAP_STATS_EMBED_MESSAGE_COUNT_DEFAULT);
     $items = array_slice($activity['messages'], 0, $count);
@@ -106,6 +113,7 @@ function _ossap_stats_embed_js($stat) {
     'aggregates' => $aggregates,
     'os_version' => _ossap_stats_get_os_version(),
     'messages' => $messages,
+    'getsatisfaction' => $getsatisfaction,
   );
 
   print theme('ossap_stats_embed_js', $variables);

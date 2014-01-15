@@ -19,6 +19,12 @@ if (isset($os_version)) {
 if (isset($messages) && !empty($messages)) {
   $aggregates['activity-messages'] = $messages;
 }
+if (isset($getsatisfaction) && !empty($getsatisfaction)) {
+  foreach ($getsatisfaction as $key => $value) {
+    $aggregates["gs-{$key}"] = $value;
+  }
+}
+
 ?>
 /**
  * Include this JS file to embed aggregated OpenScholar SAP stats on any page.
