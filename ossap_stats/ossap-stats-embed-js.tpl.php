@@ -52,12 +52,12 @@ if (empty($aggregates)) {
 <? foreach ($aggregates as $key => $value): ?>
   // Current <?php echo $key; ?>
 
-  var elem = document.getElementById('ossap-stats-<?php echo $key; ?>');
-  if (typeof elem !== 'undefined' && elem !== null) {
+  var elements = document.getElementsByClassName('ossap-stats-<?php echo $key; ?>');
+  for(var i = 0; i < elements.length; i++) {
     <?php $value = ($key == 'filesize_bytes') ? format_size($value) : $value ?>
     <?php $value = (is_numeric($value)) ? number_format($value) : $value ?>
     <?php $value = ($key == 'activity-messages') ? $value : "'{$value}'" ?>
-    elem.innerHTML = <?php echo $value; ?>;
+    elements[i].innerHTML = <?php echo $value; ?>;
   }
 
 <? endforeach; ?>
