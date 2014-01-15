@@ -88,9 +88,24 @@ function _ossap_stats_page() {
 function _ossap_stats_embed_js($stat) {
   drupal_add_http_header('Content-Type', 'text/javascript; charset=utf-8');
   $aggregates = variable_get('ossap_stats_aggregates', array());
+
+  // Prepares the activity messages.
+  $messages = '';
+  $activity = variable_get('ossap_stats_activity');
+  if (isset($activity['messages']) && !empty($activity['messages'])) {
+    $count = variable_get('ossap_stats_embed_message_count', OSSAP_STATS_EMBED_MESSAGE_COUNT_DEFAULT);
+    $items = array_slice($activity['messages'], 0, $count);
+    $build = array(
+      '#theme' => 'item_list',
+      '#items' => $items,
+      '#attributes' => array('class' => array('ossap-stats-embed-messages')),
+    );
+    $messages = drupal_render($build);
+  }
   $variables = array(
     'aggregates' => $aggregates,
     'os_version' => _ossap_stats_get_os_version(),
+    'messages' => $messages,
   );
 
   print theme('ossap_stats_embed_js', $variables);
