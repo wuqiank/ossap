@@ -110,7 +110,7 @@ function ossap_stats_cron_queue_info() {
 function ossap_stats_cron() {
   $queue = DrupalQueue::get('ossap_stats_queue');
   $queue->createQueue();
-  $stats = array('sites', 'getsatisfaction');
+  $stats = array('sites', 'getsatisfaction', 'activity');
   foreach ($stats as $stat) {
     $queue->createItem($stat);
   }
@@ -127,6 +127,9 @@ function ossap_stats_block_worker($stat = '') {
     case 'getsatisfaction':
       ossap_stats_getsatisfaction_cron_worker();
       break;
+    case 'activity':
+      ossap_stats_activity_cron_worker();
+      break;
   }
 }
 
@@ -139,6 +142,38 @@ function ossap_stats_getsatisfaction_cron_worker() {
   $getsatisfaction_stats = $function();
   if (!empty($getsatisfaction_stats)) {
     variable_set('ossap_stats_getsatisfaction', $getsatisfaction_stats);
+  }
+}
+
+/**
+ * Cron queue worker to aggregate latest status messages.
+ */
+function ossap_stats_activity_cron_worker() {
+  $activity = array();
+
+  $servers = variable_get('ossap_child_domains', array());
+  $domains = array_keys($servers);
+  $options = array();
+  foreach ($domains as $domain) {
+    $url = "http://$domain/activity.json";
+    $result = drupal_http_request($url, $options);
+    if (isset($result->data)) {
+      $data = drupal_json_decode($result->data);
+      foreach ($data['messages'] as $key => $info) {
+        $activity['messages'][$key] = array(
+          'data' => $info['markup'],
+        );
+      }
+    }
+  }
+
+  if (!empty($activity)) {
+    if (!empty($activity['messages'])) {
+      // Sorts the activity messages first by timestamp desc, then by nid desc.
+      ksort($activity['messages'], SORT_NUMERIC);
+      $activity['messages'] = array_reverse($activity['messages']);
+    }
+    variable_set('ossap_stats_activity', $activity);
   }
 }
 
