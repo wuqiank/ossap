@@ -9,7 +9,7 @@
  * Defines the settings variable name for the total child sites count block.
  */
 define('OSSAP_SITES_BLOCK_SETTINGS', 'ossap_stats_sites_settings');
-
+define('OSSAP_STATS_EMBED_MESSAGE_COUNT_DEFAULT', 3);
 /**
  * Implements hook_menu().
  */
