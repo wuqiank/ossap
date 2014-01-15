@@ -61,7 +61,7 @@ if (empty($aggregates)) {
   var elements = document.getElementsByClassName('ossap-stats-<?php echo $key; ?>');
   for(var i = 0; i < elements.length; i++) {
     <?php $value = ($key == 'filesize_bytes') ? format_size($value) : $value ?>
-    <?php $value = (is_numeric($value)) ? number_format($value) : $value ?>
+    <?php $value = ($key != "os_version" && is_numeric($value)) ? number_format($value) : $value ?>
     <?php $value = ($key == 'activity-messages') ? $value : "'{$value}'" ?>
     elements[i].innerHTML = <?php echo $value; ?>;
   }

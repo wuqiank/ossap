@@ -189,8 +189,10 @@ function ossap_stats_activity_cron_worker() {
     if (isset($result->data)) {
       $data = drupal_json_decode($result->data);
       foreach ($data['messages'] as $key => $info) {
+        $time = _ossap_stats_time_markup($info['timestamp']);
+
         $activity['messages'][$key] = array(
-          'data' => $info['markup'],
+          'data' => $time . $info['markup'],
         );
       }
     }
@@ -281,4 +283,35 @@ function ossap_stats_form_os_settings_form_alter(&$form, &$form_state, $form_id)
     '#default_value' => variable_get('ossap_stats_embed_message_count', OSSAP_STATS_EMBED_MESSAGE_COUNT_DEFAULT),
     '#description' => t('(Integer) How many recent activity messages to display.'),
   );
+}
+
+/**
+ * Returns an HTML5 semantic time tag with datetime, title and time ago text.
+ *
+ * @see http://microformats.org/wiki/abbr-datetime-pattern
+ */
+function _ossap_stats_time_markup($timestamp) {
+  $markup = '';
+
+  if (!empty($timestamp) && is_numeric($timestamp)) {
+    $time = format_interval(time() - $timestamp);
+    $datetime = strftime('%Y-%m-%d %H:%M:%S%z', $timestamp);
+    $title = format_date($timestamp);
+    $time_ago = t('@time ago', array('@time' => $time));
+    $build = array(
+      '#theme' => 'html_tag',
+      '#tag' => 'time',
+      '#attributes' => array(
+        'class' => array(
+          'time',
+        ),
+        'datetime' => $datetime,
+        'title' => $title,
+      ),
+      '#value' => $time_ago,
+    );
+    $markup = drupal_render($build);
+  }
+
+  return $markup;
 }
