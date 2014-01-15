@@ -54,6 +54,7 @@ if (empty($aggregates)) {
   if (typeof elem !== 'undefined' && elem !== null) {
     <?php $value = ($key == 'filesize_bytes') ? format_size($value) : $value ?>
     elem.innerText = '<?php echo $value; ?>';
+    <?php $value = (is_numeric($value)) ? number_format($value) : $value ?>
   }
 
 <? endforeach; ?>
