@@ -73,6 +73,12 @@ function _ossap_stats_page() {
     $data['getsatisfaction'] = $getsatisfaction;
   }
 
+  // Adds activity statistics if any statistics exist.
+  $activity = variable_get('ossap_stats_activity', NULL);
+  if ($activity !== NULL) {
+    $data['activity'] = $activity;
+  }
+
   drupal_json_output($data);
 }
 
