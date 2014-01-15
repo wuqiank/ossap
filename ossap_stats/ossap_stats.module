@@ -279,6 +279,8 @@ function ossap_stats_form_os_settings_form_alter(&$form, &$form_state, $form_id)
 
 /**
  * Returns an HTML5 semantic time tag with datetime, title and time ago text.
+ *
+ * @see http://microformats.org/wiki/abbr-datetime-pattern
  */
 function _ossap_stats_time_markup($timestamp) {
   $markup = '';
