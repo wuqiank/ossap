@@ -56,7 +56,8 @@ if (empty($aggregates)) {
   if (typeof elem !== 'undefined' && elem !== null) {
     <?php $value = ($key == 'filesize_bytes') ? format_size($value) : $value ?>
     <?php $value = (is_numeric($value)) ? number_format($value) : $value ?>
-    elem.innerHTML = '<?php echo $value; ?>';
+    <?php $value = ($key == 'activity-messages') ? $value : "'{$value}'" ?>
+    elem.innerHTML = <?php echo $value; ?>;
   }
 
 <? endforeach; ?>
