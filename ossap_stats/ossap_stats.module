@@ -163,8 +163,7 @@ function ossap_stats_sites_cron_worker() {
  */
 function _ossap_stats_get_os_version() {
   // Parses the info file to get os_version.
-  $path = drupal_get_path('profile', 'openscholar') . '/openscholar.info';
-  $info = drupal_parse_info_file($path);
+  $info = system_get_info('module','openscholar');
 
   // Removes the Drupal major version number prefix (i.e. "7.x-").
   $os_version = substr($info['os_version'], 4);
