@@ -9,7 +9,7 @@
  * Defines the settings variable name for the total child sites count block.
  */
 define('OSSAP_SITES_BLOCK_SETTINGS', 'ossap_stats_sites_settings');
-
+define('OSSAP_STATS_EMBED_MESSAGE_COUNT_DEFAULT', 3);
 /**
  * Implements hook_menu().
  */
@@ -67,6 +67,18 @@ function _ossap_stats_page() {
     'os_version' => _ossap_stats_get_os_version(),
   );
 
+  // Adds GetSatisfaction statistics if any statistics exist.
+  $getsatisfaction = variable_get('ossap_stats_getsatisfaction', NULL);
+  if ($getsatisfaction !== NULL) {
+    $data['getsatisfaction'] = $getsatisfaction;
+  }
+
+  // Adds activity statistics if any statistics exist.
+  $activity = variable_get('ossap_stats_activity', NULL);
+  if ($activity !== NULL) {
+    $data['activity'] = $activity;
+  }
+
   drupal_json_output($data);
 }
 
@@ -76,9 +88,24 @@ function _ossap_stats_page() {
 function _ossap_stats_embed_js($stat) {
   drupal_add_http_header('Content-Type', 'text/javascript; charset=utf-8');
   $aggregates = variable_get('ossap_stats_aggregates', array());
+
+  // Prepares the activity messages.
+  $messages = '';
+  $activity = variable_get('ossap_stats_activity');
+  if (isset($activity['messages']) && !empty($activity['messages'])) {
+    $count = variable_get('ossap_stats_embed_message_count', OSSAP_STATS_EMBED_MESSAGE_COUNT_DEFAULT);
+    $items = array_slice($activity['messages'], 0, $count);
+    $build = array(
+      '#theme' => 'item_list',
+      '#items' => $items,
+      '#attributes' => array('class' => array('ossap-stats-embed-messages')),
+    );
+    $messages = drupal_render($build);
+  }
   $variables = array(
     'aggregates' => $aggregates,
     'os_version' => _ossap_stats_get_os_version(),
+    'messages' => $messages,
   );
 
   print theme('ossap_stats_embed_js', $variables);
@@ -104,7 +131,7 @@ function ossap_stats_cron_queue_info() {
 function ossap_stats_cron() {
   $queue = DrupalQueue::get('ossap_stats_queue');
   $queue->createQueue();
-  $stats = array('sites');
+  $stats = array('sites', 'getsatisfaction', 'activity');
   foreach ($stats as $stat) {
     $queue->createItem($stat);
   }
@@ -118,6 +145,56 @@ function ossap_stats_block_worker($stat = '') {
     case 'sites':
       ossap_stats_sites_cron_worker();
       break;
+    case 'getsatisfaction':
+      ossap_stats_getsatisfaction_cron_worker();
+      break;
+    case 'activity':
+      ossap_stats_activity_cron_worker();
+      break;
+  }
+}
+
+function ossap_stats_getsatisfaction_cron_worker() {
+  $function = 'getsatisfaction_integration_stats';
+  if (!function_exists($function)) {
+    return;
+  }
+
+  $getsatisfaction_stats = $function();
+  if (!empty($getsatisfaction_stats)) {
+    variable_set('ossap_stats_getsatisfaction', $getsatisfaction_stats);
+  }
+}
+
+/**
+ * Cron queue worker to aggregate latest status messages.
+ */
+function ossap_stats_activity_cron_worker() {
+  $activity = array();
+
+  $servers = variable_get('ossap_child_domains', array());
+  $domains = array_keys($servers);
+  $options = array();
+  foreach ($domains as $domain) {
+    $url = "http://$domain/activity.json";
+    $result = drupal_http_request($url, $options);
+    if (isset($result->data)) {
+      $data = drupal_json_decode($result->data);
+      foreach ($data['messages'] as $key => $info) {
+        $activity['messages'][$key] = array(
+          'data' => $info['markup'],
+        );
+      }
+    }
+  }
+
+  if (!empty($activity)) {
+    if (!empty($activity['messages'])) {
+      // Sorts the activity messages first by timestamp desc, then by nid desc.
+      ksort($activity['messages'], SORT_NUMERIC);
+      $activity['messages'] = array_reverse($activity['messages']);
+    }
+    variable_set('ossap_stats_activity', $activity);
   }
 }
 
@@ -169,4 +246,31 @@ function _ossap_stats_get_os_version() {
   $os_version = substr($info['os_version'], 4);
 
   return $os_version;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for os_settings_form.
+ *
+ * Allows admins to set the global Google Analytics ID and sitewide options.
+ */
+function ossap_stats_form_os_settings_form_alter(&$form, &$form_state, $form_id) {
+  $form['ossap_stats'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('OSSAP Stats'),
+    '#weight' => 1,
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  $prefix = '<h4>' . t('Embeddable stats') . '</h4><p class="description">';
+  $prefix .= t('These settings affect the information available in the <a href="!href">OSSAP Stats embed JS</a>.', array('!href' => url('ossap/stats.js'))) . '</p>';
+  $form['ossap_stats']['ossap_stats_embed_message_count'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Activity message count'),
+    '#prefix' => $prefix,
+    '#weight' => 15,
+    '#size' => 6,
+    '#maxlength' => 255,
+    '#default_value' => variable_get('ossap_stats_embed_message_count', OSSAP_STATS_EMBED_MESSAGE_COUNT_DEFAULT),
+    '#description' => t('(Integer) How many recent activity messages to display.'),
+  );
 }
