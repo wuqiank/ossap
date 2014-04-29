@@ -84,10 +84,10 @@ function _ossap_stats_page() {
     $data['activity'] = $activity;
   }
   
-  // Adds most visited sites statistics if any statistics exist.
-  $most_visited_sites = variable_get('ossap_stats_most_visited_sites', NULL);
-  if ($most_visited_sites !== NULL) {
-    $data['most_visited_sites'] = $most_visited_sites;
+  // Adds osboard statistics if any statistics exist
+  $osboard_stats = variable_get('ossap_stats_osboard_stats', NULL);
+  if ($osboard_stats !== NULL) {
+    $data['osboard_stats'] = $activity;
   }
 
   drupal_json_output($data);
@@ -100,6 +100,9 @@ function _ossap_stats_embed_js($stat) {
   drupal_add_http_header('Content-Type', 'text/javascript; charset=utf-8');
   $aggregates = variable_get('ossap_stats_aggregates', array());
 
+  //Prepares any available OSboard statistics
+  $osboard_stats = variable_get('ossap_stats_osboard_stats', array());
+  
   // Prepares any available GetSatisfaction statistics.
   $getsatisfaction = variable_get('ossap_stats_getsatisfaction', array());
   // Prepares the activity messages.
@@ -120,6 +123,8 @@ function _ossap_stats_embed_js($stat) {
     'os_version' => _ossap_stats_get_os_version(),
     'messages' => $messages,
     'getsatisfaction' => $getsatisfaction,
+	//added osboard_stats to the array
+	'osboard_stats' => $osboard_stats,
   );
 
   print theme('ossap_stats_embed_js', $variables);
@@ -145,8 +150,7 @@ function ossap_stats_cron_queue_info() {
 function ossap_stats_cron() {
   $queue = DrupalQueue::get('ossap_stats_queue');
   $queue->createQueue();
-  // Add an array key as a new cron job key
-  $stats = array('sites', 'getsatisfaction', 'activity', 'most_visited_sites');
+  $stats = array('sites', 'getsatisfaction', 'activity','osboard_stats');
   foreach ($stats as $stat) {
     $queue->createItem($stat);
   }
@@ -166,26 +170,24 @@ function ossap_stats_block_worker($stat = '') {
     case 'activity':
       ossap_stats_activity_cron_worker();
       break;
-	// Add a case statement in the cron worker function
-	case 'most_visited_sites':
-	  ossap_stats_most_visited_sites_cron_worker();
-	  break;
+	//added case for osboard_stats
+	case 'osboard_stats':
+	  ossap_stats_osboard_stats_cron_worker();
+      break;
   }
 }
-
-// Add a cron worker callback function that calls the external function
-function ossap_stats_most_visited_sites_cron_worker(){
-  $function = 'most_visited_sites_integration_stats';
+//add function for osboard_stats
+function ossap_stats_osboard_stats_cron_worker() {
+  $function = 'return_all_data';
   if (!function_exists($function)) {
     return;
   }
-  
-  $most_visited_sites_stats = $function();
-  if (!empty($most_visited_sites_stats)) {
-    variable_set('ossap_stats_most_visited_sites', $most_visited_sites_stats);
+
+  $osboard_stats = $function();
+  if (!empty($osboard_stats)) {
+    variable_set('ossap_stats_osboard_stats', $osboard_stats);
   }
 }
-
 
 function ossap_stats_getsatisfaction_cron_worker() {
   $function = 'getsatisfaction_integration_stats';
