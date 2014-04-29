@@ -31,9 +31,149 @@ function ossap_stats_menu() {
     'access callback' => TRUE,
     'type' => MENU_CALLBACK,
   );
-
+  //osboard menu start
+  $items['ossap/most-viewed-pages'] = array(
+    'title' => t('OpenScholar Board - Most Viewed Pages'),
+	'type' => MENU_CALLBACK,
+    'page callback' => '_os_board_viewed_pages',
+	'access callback' => TRUE,
+  );
+  
+  $items['ossap/most-visited-sites'] = array(
+    'title' => t('OpenScholar Board - Most visited Sites'),
+	'type' => MENU_CALLBACK,
+ 	'page callback' => '_os_board_visited_sites',
+	'access callback' => TRUE,
+  );
+  
+   $items['admin/config/ossap_os_board'] = array(
+    'title' => 'OSSA - OpenScholar Board Settings',
+    'description' => 'Administer OpenScholar Board specific settings.',
+    'position' => 'left',
+    'weight' => -5,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('os_board_settings_form'),
+    'access arguments' => array('administer content'),
+  );
+  //osboard menu start
   return $items;
 }
+
+/*
+* os_board_settings_form
+* parameters : form_state
+* creates an admin form for os_board for admins to
+* enter the data for activating Google Analytics 
+*/
+function os_board_settings_form($form_state){
+ $form = array();
+
+ $form['os_board_settings'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Enter OS Board setting details here'),
+    '#weight' => 0,
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+
+  $form['os_board_settings']['os_board_private_key'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Private Key'),
+    '#default_value' => variable_get('os_board_private_key',""),
+    '#description' => t('Add OS Board Private Key here'),
+  );
+  
+  $form['os_board_settings']['os_board_private_key_fid'] = array(
+        '#type' => 'managed_file',
+        '#title' => t('Private Key file'),
+        '#description' => t('Upload the Private Key file from Google and type service Account'),
+        '#default_value' => variable_get('os_board_private_key_fid', ''),
+        '#upload_validators' => array(
+          'file_validate_extensions' => array('p12'),
+          'file_validate_size' => array(2*1024*1024),
+        ),
+      );
+  
+  $form['os_board_settings']['os_board_client_id'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Client Id'),
+    '#default_value' => variable_get('os_board_client_id',""),
+    '#description' => t('Add OS Board Client Id here'),
+  );
+
+  $form['os_board_settings']['os_board_service_gmail'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Service Gmail'),
+    '#required' => TRUE,
+    '#default_value' => variable_get('os_board_service_gmail',""),
+    '#description' => t('Add OS Board Service Gmail here'),
+   );
+   
+   $form['os_board_settings']['os_board_analytics_id'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Analytics Id'),
+    '#required' => TRUE,
+    '#default_value' => variable_get('os_board_analytics_id'),
+    '#description' => t('Add OS Board Analytics Id here'),
+   );
+
+  return system_settings_form($form);
+
+}
+
+/*
+* _os_board_get_require_once()
+* no parameters. all the required files in this function
+* 
+*/
+function _os_board_get_require_once(){
+  require_once 'google-api-php-client/src/Google_Client.php';
+  require_once 'google-api-php-client/src/contrib/Google_AnalyticsService.php';
+  require_once 'os_board.inc';
+}
+
+/*
+* _os_board_visited_sites()
+* no parameters. returns most frequently visited sites
+*/
+ function _os_board_visited_sites(){
+     //get all the require_once files
+     _os_board_get_require_once();
+     //declare variables
+     $sites_rows = array();
+     //get results from the design_output function by sending the parameter of type = visits
+     $results = os_design_output('visits');
+
+     //create the array of results
+	 foreach($results['rows'] as $result) {
+		$sites_rows[] = array($result[0],$result[1]);
+	}	 
+     //return output as a json object;
+	 drupal_json_output($sites_rows);
+ 
+ }
+
+/*
+* _os_board_viewed_pages()
+* no parameters. returns most frequently viewed pages
+*/
+function _os_board_viewed_pages(){
+     //get all the require_once files
+     _os_board_get_require_once();
+     //declare variables
+     $pages_rows = array();
+	 
+     //get results from the design_output function by sending the parameter of type = pageviews
+     $results = os_design_output('pageviews');
+	 
+     //create the array of results
+     foreach($results['rows'] as $result) {
+         $pages_rows[] = array($result[0],$result[1]);
+     }
+	 
+	//return output as a json object;
+	drupal_json_output($pages_rows);
+ }
 
 /**
  * Implements hook_theme().
@@ -46,6 +186,9 @@ function ossap_stats_theme() {
         'os_version' => NULL,
         'messages' => NULL,
         'getsatisfaction' => NULL,
+		'os_board_visited_pages' => NULL,
+		'os_board_viewed_pages' => NULL
+		
       ),
       'template' => 'ossap-stats-embed-js',
     ),
@@ -83,6 +226,18 @@ function _ossap_stats_page() {
   if ($activity !== NULL) {
     $data['activity'] = $activity;
   }
+  
+  // Add most visited sites statistics if any statistics exist.
+  $most_visited_sites = variable_get('ossap_stats_most_visited_sites', NULL);
+  if ($most_visited_sites !== NULL) {
+    $data['most_visited_sites'] = $most_visited_sites;
+  }
+  
+  // Add most viewed pages statistics if any statistics exist.
+  $most_viewed_pages = variable_get('ossap_stats_most_viewed_pages', NULL);
+  if ($most_viewed_pages !== NULL) {
+    $data['most_viewed_pages'] = $most_viewed_pages;
+  }
 
   drupal_json_output($data);
 }
@@ -96,6 +251,13 @@ function _ossap_stats_embed_js($stat) {
 
   // Prepares any available GetSatisfaction statistics.
   $getsatisfaction = variable_get('ossap_stats_getsatisfaction', array());
+  
+  // Prepares any available Most visited statistics.
+  $most_visited_sites = variable_get('ossap_stats_most_visited_sites', array());
+  
+  // Prepares any available Most viewed statistics.
+  $most_viewed_pages = variable_get('ossap_stats_most_viewed_pages', array());
+  
   // Prepares the activity messages.
   $messages = '';
   $activity = variable_get('ossap_stats_activity', array());
@@ -114,6 +276,9 @@ function _ossap_stats_embed_js($stat) {
     'os_version' => _ossap_stats_get_os_version(),
     'messages' => $messages,
     'getsatisfaction' => $getsatisfaction,
+	//added variables for most_visited_sites and most_viewed_pages
+	'most_visited_sites' => $most_visited_sites,
+	'most_viewed_pages' => $most_viewed_pages
   );
 
   print theme('ossap_stats_embed_js', $variables);
@@ -140,7 +305,7 @@ function ossap_stats_cron() {
   $queue = DrupalQueue::get('ossap_stats_queue');
   $queue->createQueue();
   // Add an array key as a new cron job key
-  $stats = array('sites', 'getsatisfaction', 'activity');
+  $stats = array('sites', 'getsatisfaction', 'activity', 'most_visited_sites', 'most_viewed_pages');
   foreach ($stats as $stat) {
     $queue->createItem($stat);
   }
@@ -160,8 +325,41 @@ function ossap_stats_block_worker($stat = '') {
     case 'activity':
       ossap_stats_activity_cron_worker();
       break;
+	// Add a case statement in the cron worker function
+	case 'most_visited_sites':
+	  ossap_stats_most_visited_sites_cron_worker();
+	  break;
+	case 'most_viewed_pages':
+	  ossap_stats_most_viewed_pages_cron_worker();
+	  break;
   }
 }
+
+// Add a cron worker callback function that calls the external function
+function ossap_stats_most_visited_sites_cron_worker(){
+  $function = '_os_board_visited_sites';
+  if (!function_exists($function)) {
+    return;
+  }
+  
+  $most_visited_sites_stats = $function();
+  if (!empty($most_visited_sites_stats)) {
+    variable_set('ossap_stats_most_visited_sites', $most_visited_sites_stats);
+  }
+}
+
+function ossap_stats_most_viewed_pages_cron_worker(){
+  $function = '_os_board_viewed_pages';
+  if (!function_exists($function)) {
+    return;
+  }
+  
+  $most_viewed_pages_stats = $function();
+  if (!empty($most_viewed_pages_stats)) {
+    variable_set('ossap_stats_most_viewed_pages', $most_viewed_pages_stats);
+  }
+}
+
 
 function ossap_stats_getsatisfaction_cron_worker() {
   $function = 'getsatisfaction_integration_stats';
