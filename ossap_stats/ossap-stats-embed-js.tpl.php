@@ -24,7 +24,6 @@ if (isset($getsatisfaction) && !empty($getsatisfaction)) {
     $aggregates["gs-{$key}"] = $value;
   }
  }
-  
 if (isset($most_visited_sites) && !empty($most_visited_sites)) {
   foreach ($most_visited_sites as $key => $value) {
     $aggregates["{$key}"] = $value;
@@ -33,7 +32,7 @@ if (isset($most_visited_sites) && !empty($most_visited_sites)) {
 if (isset($most_viewed_pages) && !empty($most_viewed_pages)) {
   foreach ($most_viewed_pages as $key => $value) {
     $aggregates["{$key}"] = $value;
-  }
+  } 
 }
 
 
@@ -75,7 +74,7 @@ if (empty($aggregates)) {
     <?php $value = ($key == 'filesize_bytes') ? format_size($value) : $value ?>
     <?php $value = ($key != "os_version" && is_numeric($value)) ? number_format($value) : $value ?>
     <?php $value = ($key == 'activity-messages') ? $value : "'{$value}'" ?>
-	elements[i].innerHTML = <?php echo $value; ?>;
+    elements[i].innerHTML = <?php echo $value; ?>;
   }
 
 <? endforeach; ?>
