@@ -31,22 +31,22 @@ function ossap_stats_menu() {
     'access callback' => TRUE,
     'type' => MENU_CALLBACK,
   );
-  //osboard menu start
+  
   $items['ossap/most-viewed-pages'] = array(
     'title' => t('OpenScholar Board - Most Viewed Pages'),
-	'type' => MENU_CALLBACK,
+    'type' => MENU_CALLBACK,
     'page callback' => '_os_board_viewed_pages',
-	'access callback' => TRUE,
+    'access callback' => TRUE,
   );
   
   $items['ossap/most-visited-sites'] = array(
     'title' => t('OpenScholar Board - Most visited Sites'),
-	'type' => MENU_CALLBACK,
- 	'page callback' => '_os_board_visited_sites',
-	'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+    'page callback' => '_os_board_visited_sites',
+    'access callback' => TRUE,
   );
   
-   $items['admin/config/ossap_os_board'] = array(
+  $items['admin/config/ossap_os_board'] = array(
     'title' => 'OSSA - OpenScholar Board Settings',
     'description' => 'Administer OpenScholar Board specific settings.',
     'position' => 'left',
@@ -55,7 +55,7 @@ function ossap_stats_menu() {
     'page arguments' => array('os_board_settings_form'),
     'access arguments' => array('administer content'),
   );
-  //osboard menu start
+  
   return $items;
 }
 
@@ -66,9 +66,9 @@ function ossap_stats_menu() {
 * enter the data for activating Google Analytics 
 */
 function os_board_settings_form($form_state){
- $form = array();
+  $form = array();
 
- $form['os_board_settings'] = array(
+  $form['os_board_settings'] = array(
     '#type' => 'fieldset',
     '#title' => t('Enter OS Board setting details here'),
     '#weight' => 0,
@@ -84,15 +84,14 @@ function os_board_settings_form($form_state){
   );
   
   $form['os_board_settings']['os_board_private_key_fid'] = array(
-        '#type' => 'managed_file',
-        '#title' => t('Private Key file'),
-        '#description' => t('Upload the Private Key file from Google and type service Account'),
-        '#default_value' => variable_get('os_board_private_key_fid', ''),
-        '#upload_validators' => array(
-          'file_validate_extensions' => array('p12'),
-          'file_validate_size' => array(2*1024*1024),
-        ),
-      );
+    '#type' => 'managed_file',
+    '#title' => t('Private Key file'),
+    '#description' => t('Upload the Private Key file from Google and type service Account'),
+    '#default_value' => variable_get('os_board_private_key_fid', ''),
+    '#upload_validators' => array(
+                              'file_validate_extensions' => array('p12'),
+                              'file_validate_size' => array(2*1024*1024)),
+  );
   
   $form['os_board_settings']['os_board_client_id'] = array(
     '#type' => 'textfield',
@@ -107,9 +106,9 @@ function os_board_settings_form($form_state){
     '#required' => TRUE,
     '#default_value' => variable_get('os_board_service_gmail',""),
     '#description' => t('Add OS Board Service Gmail here'),
-   );
+  );
    
-   $form['os_board_settings']['os_board_analytics_id'] = array(
+  $form['os_board_settings']['os_board_analytics_id'] = array(
     '#type' => 'textfield',
     '#title' => t('Analytics Id'),
     '#required' => TRUE,
@@ -118,7 +117,6 @@ function os_board_settings_form($form_state){
    );
 
   return system_settings_form($form);
-
 }
 
 /*
@@ -136,22 +134,20 @@ function _os_board_get_require_once(){
 * _os_board_visited_sites()
 * no parameters. returns most frequently visited sites
 */
- function _os_board_visited_sites(){
-     //get all the require_once files
-     _os_board_get_require_once();
-     //declare variables
-     $sites_rows = array();
-     //get results from the design_output function by sending the parameter of type = visits
-     $results = os_design_output('visits');
-
-     //create the array of results
-	 foreach($results['rows'] as $result) {
-		$sites_rows[] = array($result[0],$result[1]);
-	}	 
-     //return output as a json object;
-	 drupal_json_output($sites_rows);
- 
- }
+function _os_board_visited_sites(){
+  //get all the require_once files
+  _os_board_get_require_once();
+  //declare variables
+  $sites_rows = array();
+  //get results from the design_output function by sending the parameter of type = visits
+  $results = os_design_output('visits');
+  //create the array of results
+  foreach($results['rows'] as $result) {
+    $sites_rows[] = array($result[0],$result[1]);
+  }	 
+  //return output as a json object;
+  drupal_json_output($sites_rows);
+}
 
 /*
 * _os_board_viewed_pages()
@@ -162,17 +158,17 @@ function _os_board_viewed_pages(){
      _os_board_get_require_once();
      //declare variables
      $pages_rows = array();
-	 
+     
      //get results from the design_output function by sending the parameter of type = pageviews
      $results = os_design_output('pageviews');
-	 
+     
      //create the array of results
      foreach($results['rows'] as $result) {
          $pages_rows[] = array($result[0],$result[1]);
      }
-	 
-	//return output as a json object;
-	drupal_json_output($pages_rows);
+     
+    //return output as a json object;
+    drupal_json_output($pages_rows);
  }
 
 /**
@@ -186,9 +182,9 @@ function ossap_stats_theme() {
         'os_version' => NULL,
         'messages' => NULL,
         'getsatisfaction' => NULL,
-		'os_board_visited_pages' => NULL,
-		'os_board_viewed_pages' => NULL
-		
+        'os_board_visited_pages' => NULL,
+        'os_board_viewed_pages' => NULL
+        
       ),
       'template' => 'ossap-stats-embed-js',
     ),
@@ -276,9 +272,9 @@ function _ossap_stats_embed_js($stat) {
     'os_version' => _ossap_stats_get_os_version(),
     'messages' => $messages,
     'getsatisfaction' => $getsatisfaction,
-	//added variables for most_visited_sites and most_viewed_pages
-	'most_visited_sites' => $most_visited_sites,
-	'most_viewed_pages' => $most_viewed_pages
+    //added variables for most_visited_sites and most_viewed_pages
+    'most_visited_sites' => $most_visited_sites,
+    'most_viewed_pages' => $most_viewed_pages
   );
 
   print theme('ossap_stats_embed_js', $variables);
@@ -325,13 +321,13 @@ function ossap_stats_block_worker($stat = '') {
     case 'activity':
       ossap_stats_activity_cron_worker();
       break;
-	// Add a case statement in the cron worker function
-	case 'most_visited_sites':
-	  ossap_stats_most_visited_sites_cron_worker();
-	  break;
-	case 'most_viewed_pages':
-	  ossap_stats_most_viewed_pages_cron_worker();
-	  break;
+    // Add a case statement in the cron worker function
+    case 'most_visited_sites':
+      ossap_stats_most_visited_sites_cron_worker();
+      break;
+    case 'most_viewed_pages':
+      ossap_stats_most_viewed_pages_cron_worker();
+      break;
   }
 }
 
