@@ -183,10 +183,9 @@ function ossap_stats_theme() {
         'messages' => NULL,
         'getsatisfaction' => NULL,
         'os_board_visited_pages' => NULL,
-        'os_board_viewed_pages' => NULL
-        
+        'os_board_viewed_pages' => NULL 
       ),
-      'template' => 'ossap-stats-embed-js',
+    'template' => 'ossap-stats-embed-js',
     ),
   );
 }
