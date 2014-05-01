@@ -2,12 +2,12 @@
 
 /* authenticate credentials by creating a new Google_client object and 
 * sending it to google analytics
-* check_credentials
+* ossap_stats_check_credentials
 * no parameters
 * creates the google_client object
 * returns the validated service object
 */
-function check_credentials(){
+function ossap_stats_check_credentials(){
     //variables definition block starts
     $output ='';
 	$access_type = 'offline_access';
@@ -62,7 +62,7 @@ function os_design_output($type){
 	
     $max_results = 5;
     //get credentials 
-     $service = check_credentials();
+     $service = ossap_stats_check_credentials();
     if ($type == 'visits'){
         $sort = $sort_visits;
         $metrics = $metrics_visits;
@@ -92,7 +92,7 @@ function return_users(){
 		$rt_users = 'rt:activeUsers';
 		
 		//validate the credentials
-        $service = check_credentials();
+        $service = ossap_stats_check_credentials();
 		$optparams = array ('dimensions' => $dimensions);
 		
 		//get result 
@@ -116,7 +116,7 @@ function return_pages(){
 		$page_views = 'rt:pageviews';
 		
 		//validate the credentials
-	    $service = check_credentials();
+	    $service = ossap_stats_check_credentials();
         $optparams = array ('dimensions' => $dimensions , 'sort' =>  $sort, 'max-results' => $max_results );
 		
 		//get result 
