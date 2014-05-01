@@ -7,7 +7,8 @@
 * creates the google_client object
 * returns the validated service object
 */
-function ossap_stats_check_credentials(){
+
+function ossa_stats_check_credentials(){
     //variables definition block starts
     $output ='';
 	$access_type = 'offline_access';
