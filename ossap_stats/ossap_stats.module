@@ -122,15 +122,18 @@ function os_board_settings_form($form_state){
 }
 
 /*
-* _os_board_get_require_once()
-* no parameters. all the required files in this function
+* include all the required files via module_load_include
 * 
 */
-function _os_board_get_require_once(){
+/* function _os_board_get_require_once(){
   require_once 'google-api-php-client/src/Google_Client.php';
   require_once 'google-api-php-client/src/contrib/Google_AnalyticsService.php';
   require_once 'os_board.inc';
-}
+} */
+
+module_load_include('php', 'ossap_stats', 'google-api-php-client/src/Google_Client');
+module_load_include('php', 'ossap_stats', 'google-api-php-client/src/contrib/Google_AnalyticsService');
+module_load_include('inc', 'ossap_stats', 'ossap_stats_credentials');
 
 /*
 * _os_board_visited_sites()
@@ -138,7 +141,7 @@ function _os_board_get_require_once(){
 */
  function _os_board_visited_sites(){
      //get all the require_once files
-     _os_board_get_require_once();
+     //_os_board_get_require_once();
      //declare variables
      $sites_rows = array();
      //get results from the design_output function by sending the parameter of type = visits
