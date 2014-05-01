@@ -89,9 +89,16 @@ function os_board_settings_form($form_state){
     '#description' => t('Upload the Private Key file from Google and type service Account'),
     '#default_value' => variable_get('os_board_private_key_fid', ''),
     '#upload_validators' => array(
+<<<<<<< HEAD
                               'file_validate_extensions' => array('p12'),
                               'file_validate_size' => array(2*1024*1024)),
   );
+=======
+       'file_validate_extensions' => array('p12'),
+       'file_validate_size' => array(2*1024*1024),
+        ),
+      );
+>>>>>>> origin/OSSAP-7.x
   
   $form['os_board_settings']['os_board_client_id'] = array(
     '#type' => 'textfield',
@@ -124,6 +131,7 @@ function os_board_settings_form($form_state){
 * no parameters. all the required files in this function
 * 
 */
+<<<<<<< HEAD
 function _os_board_get_require_once(){
   require_once 'google-api-php-client/src/Google_Client.php';
   require_once 'google-api-php-client/src/contrib/Google_AnalyticsService.php';
@@ -131,11 +139,18 @@ function _os_board_get_require_once(){
   
   module_load_include('inc', 'ossap_stats', 'ossap_stats_credentials');
 }
+=======
+
+module_load_include('php', 'ossap_stats', 'google-api-php-client/src/Google_Client');
+module_load_include('php', 'ossap_stats', 'google-api-php-client/src/contrib/Google_AnalyticsService');
+module_load_include('inc', 'ossap_stats', 'ossap_stats_credentials');
+>>>>>>> origin/OSSAP-7.x
 
 /*
 * _os_board_visited_sites()
 * no parameters. returns most frequently visited sites
 */
+<<<<<<< HEAD
 function _os_board_visited_sites(){
   //get all the require_once files
   _os_board_get_require_once();
@@ -150,17 +165,34 @@ function _os_board_visited_sites(){
   //return output as a json object;
   drupal_json_output($sites_rows);
 }
+=======
+ function _os_board_visited_sites(){
+     //get results from the design_output function by sending the parameter of type = visits
+     $results = os_design_output('visits');
+
+     //create the array of results
+     foreach($results['rows'] as $result) {
+	$sites_rows[] = array($result[0],$result[1]);
+     }	 
+     //return output as a json object;
+     drupal_json_output($sites_rows);
+ 
+ }
+>>>>>>> origin/OSSAP-7.x
 
 /*
 * _os_board_viewed_pages()
 * no parameters. returns most frequently viewed pages
 */
 function _os_board_viewed_pages(){
+<<<<<<< HEAD
      //get all the require_once files
      _os_board_get_require_once();
      //declare variables
      $pages_rows = array();
      
+=======
+>>>>>>> origin/OSSAP-7.x
      //get results from the design_output function by sending the parameter of type = pageviews
      $results = os_design_output('pageviews');
      
@@ -168,9 +200,15 @@ function _os_board_viewed_pages(){
      foreach($results['rows'] as $result) {
          $pages_rows[] = array($result[0],$result[1]);
      }
+<<<<<<< HEAD
      
     //return output as a json object;
     drupal_json_output($pages_rows);
+=======
+	 
+     //return output as a json object;
+     drupal_json_output($pages_rows);
+>>>>>>> origin/OSSAP-7.x
  }
 
 /**
