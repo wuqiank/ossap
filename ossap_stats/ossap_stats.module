@@ -31,7 +31,7 @@ function ossap_stats_menu() {
     'access callback' => TRUE,
     'type' => MENU_CALLBACK,
   );
-  
+  //osboard menu start
   $items['ossap/most-viewed-pages'] = array(
     'title' => t('OpenScholar Board - Most Viewed Pages'),
     'type' => MENU_CALLBACK,
@@ -46,7 +46,7 @@ function ossap_stats_menu() {
     'access callback' => TRUE,
   );
   
-  $items['admin/config/ossap_os_board'] = array(
+   $items['admin/config/ossap_os_board'] = array(
     'title' => 'OSSA - OpenScholar Board Settings',
     'description' => 'Administer OpenScholar Board specific settings.',
     'position' => 'left',
@@ -55,7 +55,7 @@ function ossap_stats_menu() {
     'page arguments' => array('os_board_settings_form'),
     'access arguments' => array('administer content'),
   );
-  
+  //osboard menu start
   return $items;
 }
 
@@ -66,9 +66,9 @@ function ossap_stats_menu() {
 * enter the data for activating Google Analytics 
 */
 function os_board_settings_form($form_state){
-  $form = array();
+ $form = array();
 
-  $form['os_board_settings'] = array(
+ $form['os_board_settings'] = array(
     '#type' => 'fieldset',
     '#title' => t('Enter OS Board setting details here'),
     '#weight' => 0,
@@ -107,9 +107,9 @@ function os_board_settings_form($form_state){
     '#required' => TRUE,
     '#default_value' => variable_get('os_board_service_gmail',""),
     '#description' => t('Add OS Board Service Gmail here'),
-  );
+   );
    
-  $form['os_board_settings']['os_board_analytics_id'] = array(
+   $form['os_board_settings']['os_board_analytics_id'] = array(
     '#type' => 'textfield',
     '#title' => t('Analytics Id'),
     '#required' => TRUE,
@@ -118,13 +118,14 @@ function os_board_settings_form($form_state){
    );
 
   return system_settings_form($form);
+
 }
 
 /*
-* _os_board_get_require_once()
-* no parameters. all the required files in this function
+* include all the required files via module_load_include
 * 
 */
+
 module_load_include('php', 'ossap_stats', 'google-api-php-client/src/Google_Client');
 module_load_include('php', 'ossap_stats', 'google-api-php-client/src/contrib/Google_AnalyticsService');
 module_load_include('inc', 'ossap_stats', 'ossap_stats_credentials');
@@ -153,7 +154,7 @@ module_load_include('inc', 'ossap_stats', 'ossap_stats_credentials');
 function _os_board_viewed_pages(){
      //get results from the design_output function by sending the parameter of type = pageviews
      $results = os_design_output('pageviews');
-     
+	 
      //create the array of results
      foreach($results['rows'] as $result) {
          $pages_rows[] = array($result[0],$result[1]);
@@ -174,10 +175,11 @@ function ossap_stats_theme() {
         'os_version' => NULL,
         'messages' => NULL,
         'getsatisfaction' => NULL,
-        'os_board_visited_pages' => NULL,
-        'os_board_viewed_pages' => NULL 
+		'os_board_visited_pages' => NULL,
+		'os_board_viewed_pages' => NULL
+		
       ),
-    'template' => 'ossap-stats-embed-js',
+      'template' => 'ossap-stats-embed-js',
     ),
   );
 }
