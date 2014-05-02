@@ -8,7 +8,7 @@
 * returns the validated service object
 */
 
-function ossa_stats_check_credentials(){
+function ossap_stats_check_credentials(){
     //variables definition block starts
     $output ='';
 	$access_type = 'offline_access';
