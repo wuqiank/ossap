@@ -125,16 +125,19 @@ function os_board_settings_form($form_state){
 * include all the required files via module_load_include
 * 
 */
-
-module_load_include('php', 'ossap_stats', 'google-api-php-client/src/Google_Client');
-module_load_include('php', 'ossap_stats', 'google-api-php-client/src/contrib/Google_AnalyticsService');
-module_load_include('inc', 'ossap_stats', 'ossap_stats_credentials');
+function load_includes(){
+    module_load_include('php', 'ossap_stats', 'google-api-php-client/src/Google_Client');
+    module_load_include('php', 'ossap_stats', 'google-api-php-client/src/contrib/Google_AnalyticsService');
+    module_load_include('inc', 'ossap_stats', 'ossap_stats_credentials');
+}
 
 /*
 * _os_board_visited_sites()
 * no parameters. returns most frequently visited sites
 */
  function _os_board_visited_sites(){
+     //load the includes
+	 load_includes();
      //get results from the design_output function by sending the parameter of type = visits
      $results = os_design_output('visits');
 
@@ -152,6 +155,8 @@ module_load_include('inc', 'ossap_stats', 'ossap_stats_credentials');
 * no parameters. returns most frequently viewed pages
 */
 function _os_board_viewed_pages(){
+     //load the includes
+	 load_includes();
      //get results from the design_output function by sending the parameter of type = pageviews
      $results = os_design_output('pageviews');
 	 
@@ -175,8 +180,8 @@ function ossap_stats_theme() {
         'os_version' => NULL,
         'messages' => NULL,
         'getsatisfaction' => NULL,
-		'os_board_visited_pages' => NULL,
-		'os_board_viewed_pages' => NULL
+        'os_board_visited_pages' => NULL,
+        'os_board_viewed_pages' => NULL
 		
       ),
       'template' => 'ossap-stats-embed-js',
