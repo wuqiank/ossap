@@ -49,7 +49,7 @@ function ossap_stats_check_credentials(){
 * most frequent page views and page visited
 * returns the pageviews and visit object
 */
-function os_design_output($type){
+function ossap_stats_design_output($type){
     //variables definition block starts
     $output ='';
 	$app_name = 'OS Board';
@@ -87,7 +87,7 @@ function os_design_output($type){
 * taps into google analytics and retrieves the results for 
 * users that are currently active
 */
-function return_users(){
+function ossap_stats_return_users(){
         // declare variables
         $dimensions = 'rt:source';
 		$rt_users = 'rt:activeUsers';
@@ -109,7 +109,7 @@ function return_users(){
 * taps into google analytics and retrieves the results for 
 * pages that are currently active
 */
-function return_pages(){
+function ossap_stats_return_pages(){
         // declare variables
         $dimensions = 'rt:pagePath,rt:pageTitle';
 		$sort = '-rt:pageviews';

@@ -139,7 +139,7 @@ function ossap_stats_load_includes(){
      //load the includes
 	 ossap_stats_load_includes();
      //get results from the design_output function by sending the parameter of type = visits
-     $results = os_design_output('visits');
+     $results = ossap_stats_design_output('visits');
 
      //create the array of results
      foreach($results['rows'] as $result) {
@@ -158,7 +158,7 @@ function ossap_stats_viewed_pages(){
      //load the includes
 	 ossap_stats_load_includes();
      //get results from the design_output function by sending the parameter of type = pageviews
-     $results = os_design_output('pageviews');
+     $results = ossap_stats_design_output('pageviews');
 	 
      //create the array of results
      foreach($results['rows'] as $result) {
