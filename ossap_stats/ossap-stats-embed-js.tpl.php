@@ -23,18 +23,7 @@ if (isset($getsatisfaction) && !empty($getsatisfaction)) {
   foreach ($getsatisfaction as $key => $value) {
     $aggregates["gs-{$key}"] = $value;
   }
- }
-if (isset($most_visited_sites) && !empty($most_visited_sites)) {
-  foreach ($most_visited_sites as $key => $value) {
-    $aggregates["{$key}"] = $value;
-  }
 }
-if (isset($most_viewed_pages) && !empty($most_viewed_pages)) {
-  foreach ($most_viewed_pages as $key => $value) {
-    $aggregates["{$key}"] = $value;
-  } 
-}
-
 
 ?>
 /**
