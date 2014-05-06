@@ -60,7 +60,7 @@ function ossap_stats_menu() {
 }
 
 /*
-* os_board_settings_form
+* ossap_stats_settings_form
 * parameters : form_state
 * creates an admin form for os_board for admins to
 * enter the data for activating Google Analytics 
@@ -126,8 +126,8 @@ function ossap_stats_settings_form($form_state){
 * include all the required files via module_load_include
 */
 function ossap_stats_load_includes(){
-    module_load_include('php', 'ossap_stats', 'google-api-php-client/src/Google_Client');
-    module_load_include('php', 'ossap_stats', 'google-api-php-client/src/contrib/Google_AnalyticsService');
+    module_load_include('php', 'ossap_stats', 'libraries/src/Google_Client');
+    module_load_include('php', 'ossap_stats', 'libraries/src/contrib/Google_AnalyticsService');
     module_load_include('inc', 'ossap_stats', 'ossap_stats_credentials');
 }
 
