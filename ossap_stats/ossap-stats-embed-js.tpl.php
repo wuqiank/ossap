@@ -75,7 +75,7 @@ if (empty($aggregates)) {
     <?php $value = ($key == 'filesize_bytes') ? format_size($value) : $value ?>
     <?php $value = ($key != "os_version" && is_numeric($value)) ? number_format($value) : $value ?>
     <?php $value = ($key == 'activity-messages') ? $value : "'{$value}'" ?>
-	elements[i].innerHTML = <?php echo $value; ?>;
+    elements[i].innerHTML = <?php echo $value; ?>;
   }
 
 <? endforeach; ?>

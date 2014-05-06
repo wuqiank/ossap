@@ -8,7 +8,7 @@
 * returns the validated service object
 */
 
-function ossa_stats_check_credentials(){
+function ossap_stats_check_credentials(){
     //variables definition block starts
     $output ='';
 	$access_type = 'offline_access';
@@ -17,10 +17,10 @@ function ossa_stats_check_credentials(){
     //create a new instance of Google_client
     $client = new Google_Client();
     // set the application name
-    $client->setApplicationName('OS board');
+    $client->setApplicationName('OS Statistics');
 	
     //set the credentials, clientid and accesstype
-	$fid = variable_get('os_board_private_key_fid', '');
+	$fid = variable_get('ossap_stats_private_key_fid', '');
     if (!empty($fid)) {
 	  $uri = db_query('SELECT uri FROM {file_managed} WHERE fid = :fid', array(':fid' => $fid))->fetchColumn();
 	  $fhandle = fopen($uri, 'r');
@@ -28,10 +28,10 @@ function ossa_stats_check_credentials(){
 	  fclose($fhandle);
 	}
 	
-	$client->setAssertionCredentials(new Google_AssertionCredentials(variable_get('os_board_service_gmail'), array($scope),
+	$client->setAssertionCredentials(new Google_AssertionCredentials(variable_get('ossap_stats_service_gmail'), array($scope),
 	                          $result));
 							  
-    $client->setClientId(variable_get('os_board_client_id'));
+    $client->setClientId(variable_get('ossap_stats_client_id'));
     $client->setAccessType($access_type);
 	$client->getAccessToken();
 	
@@ -49,7 +49,7 @@ function ossa_stats_check_credentials(){
 * most frequent page views and page visited
 * returns the pageviews and visit object
 */
-function os_design_output($type){
+function ossap_stats_design_output($type){
     //variables definition block starts
     $output ='';
 	$app_name = 'OS Board';
@@ -76,7 +76,7 @@ function os_design_output($type){
     //set optional parameters like sort, dimensions etc
     $optparams = array ('dimensions' => $dimensions,'sort' => $sort,'max-results' => $max_results);
     //get result (analytics object
-    $results = $service->data_ga->get(variable_get('os_board_analytics_id'), $start_date, $end_date, $metrics, $optparams);
+    $results = $service->data_ga->get(variable_get('ossap_stats_analytics_id'), $start_date, $end_date, $metrics, $optparams);
     //create the header for the table
     return $results;
 }
@@ -87,7 +87,7 @@ function os_design_output($type){
 * taps into google analytics and retrieves the results for 
 * users that are currently active
 */
-function return_users(){
+function ossap_stats_return_users(){
         // declare variables
         $dimensions = 'rt:source';
 		$rt_users = 'rt:activeUsers';
@@ -97,7 +97,7 @@ function return_users(){
 		$optparams = array ('dimensions' => $dimensions);
 		
 		//get result 
-		$results = $service->data_realtime->get(variable_get('os_board_analytics_id'), $rt_users);
+		$results = $service->data_realtime->get(variable_get('ossap_stats_analytics_id'), $rt_users);
 		
 		//return the results
 		return $results;	
@@ -109,7 +109,7 @@ function return_users(){
 * taps into google analytics and retrieves the results for 
 * pages that are currently active
 */
-function return_pages(){
+function ossap_stats_return_pages(){
         // declare variables
         $dimensions = 'rt:pagePath,rt:pageTitle';
 		$sort = '-rt:pageviews';
@@ -121,7 +121,7 @@ function return_pages(){
         $optparams = array ('dimensions' => $dimensions , 'sort' =>  $sort, 'max-results' => $max_results );
 		
 		//get result 
-		$results = $service->data_realtime->get(variable_get('os_board_analytics_id'),$page_views, $optparams);
+		$results = $service->data_realtime->get(variable_get('ossap_stats_analytics_id'),$page_views, $optparams);
 		
 		//return the results
         return $results;
