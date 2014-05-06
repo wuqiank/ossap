@@ -126,8 +126,8 @@ function ossap_stats_settings_form($form_state){
 * include all the required files via module_load_include
 */
 function ossap_stats_load_includes(){
-    module_load_include('php', 'ossap_stats', 'libraries/Google_Client');
-    module_load_include('php', 'ossap_stats', 'libraries/Google_AnalyticsService');
+    module_load_include('php', 'ossap_stats', 'libraries/src/Google_Client');
+    module_load_include('php', 'ossap_stats', 'libraries/src/contrib/Google_AnalyticsService');
     module_load_include('inc', 'ossap_stats', 'ossap_stats_credentials');
 }
 
