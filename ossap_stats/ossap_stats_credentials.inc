@@ -59,7 +59,7 @@ function ossap_stats_design_output($type){
     $sort_visits = '-ga:visits';
     $dimensions = 'ga:hostname';
 	$start_date = '2014-04-20' ;
-	$end_date = '2014-04-25'  ;
+	$end_date = '2014-05-07'  ;
 	
     $max_results = 5;
     //get credentials 
@@ -71,6 +71,7 @@ function ossap_stats_design_output($type){
     else {
         $sort = $sort_pageviews;
         $metrics = $metrics_pageviews;
+        $dimensions = 'ga:hostname,ga:pagePath';
     }
 
     //set optional parameters like sort, dimensions etc
