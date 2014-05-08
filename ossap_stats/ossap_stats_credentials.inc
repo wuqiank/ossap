@@ -52,14 +52,13 @@ function ossap_stats_check_credentials(){
 function ossap_stats_design_output($type){
     //variables definition block starts
     $output ='';
-	$app_name = 'OS Board';
+	$app_name = 'OSSAP Statistics';
 	$metrics_pageviews = 'ga:pageviews';
     $metrics_visits = 'ga:visits';
     $sort_pageviews = '-ga:pageviews';
     $sort_visits = '-ga:visits';
-    $dimensions = 'ga:hostname';
-	$start_date = '2014-04-20' ;
-	$end_date = '2014-05-07'  ;
+    $start_date = '2014-04-20' ;
+	$end_date = '2014-04-25'  ;
 	
     $max_results = 5;
     //get credentials 
@@ -67,17 +66,18 @@ function ossap_stats_design_output($type){
     if ($type == 'visits'){
         $sort = $sort_visits;
         $metrics = $metrics_visits;
+		$dimensions = 'ga:hostname';
      }
     else {
         $sort = $sort_pageviews;
         $metrics = $metrics_pageviews;
-        $dimensions = 'ga:hostname,ga:pagePath';
+		$dimensions = 'ga:hostname,ga:pagePath';
     }
 
     //set optional parameters like sort, dimensions etc
     $optparams = array ('dimensions' => $dimensions,'sort' => $sort,'max-results' => $max_results);
     //get result (analytics object
-    $results = $service->data_ga->get(variable_get('os_board_analytics_id'), $start_date, $end_date, $metrics, $optparams);
+    $results = $service->data_ga->get(variable_get('ossap_stats_analytics_id'), $start_date, $end_date, $metrics, $optparams);
     //create the header for the table
     return $results;
 }
@@ -98,7 +98,7 @@ function ossap_stats_return_users(){
 		$optparams = array ('dimensions' => $dimensions);
 		
 		//get result 
-		$results = $service->data_realtime->get(variable_get('os_board_analytics_id'), $rt_users);
+		$results = $service->data_realtime->get(variable_get('ossap_stats_analytics_id'), $rt_users);
 		
 		//return the results
 		return $results;	
@@ -122,7 +122,7 @@ function ossap_stats_return_pages(){
         $optparams = array ('dimensions' => $dimensions , 'sort' =>  $sort, 'max-results' => $max_results );
 		
 		//get result 
-		$results = $service->data_realtime->get(variable_get('os_board_analytics_id'),$page_views, $optparams);
+		$results = $service->data_realtime->get(variable_get('ossap_stats_analytics_id'),$page_views, $optparams);
 		
 		//return the results
         return $results;

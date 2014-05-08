@@ -79,7 +79,6 @@ function ossap_stats_settings_form($form_state){
   $form['ossap_stats_settings']['ossap_stats_private_key'] = array(
     '#type' => 'textfield',
     '#title' => t('Private Key'),
-    '#required' => TRUE,
     '#default_value' => variable_get('ossap_stats_private_key',""),
     '#description' => t('Add Private Key here'),
   );
@@ -87,7 +86,7 @@ function ossap_stats_settings_form($form_state){
   $form['ossap_stats_settings']['ossap_stats_private_key_fid'] = array(
     '#type' => 'managed_file',
     '#title' => t('Private Key file'),
-    '#required' => TRUE,
+	'#required' => TRUE,
     '#description' => t('Upload the Private Key file from Google and type service Account'),
     '#default_value' => variable_get('ossap_stats_private_key_fid', ''),
     '#upload_validators' => array(
@@ -99,7 +98,7 @@ function ossap_stats_settings_form($form_state){
   $form['ossap_stats_settings']['ossap_stats_client_id'] = array(
     '#type' => 'textfield',
     '#title' => t('Client Id'),
-    '#required' => TRUE,
+	'#required' => TRUE,
     '#default_value' => variable_get('ossap_stats_client_id',""),
     '#description' => t('Add Client Id here'),
   );
@@ -141,13 +140,17 @@ function ossap_stats_load_includes(){
  function ossap_stats_visited_sites(){
      //load the includes
 	 ossap_stats_load_includes();
+	 // portals list which should be avoided in the output
+	 $portals = array('hwp.harvard.edu','projects.iq.harvard.edu','scholar.harvard.edu');
      //get results from the design_output function by sending the parameter of type = visits
      $results = ossap_stats_design_output('visits');
 
      //create the array of results
      foreach($results['rows'] as $result) {
-	$sites_rows[] = array($result[0],$result[1]);
-     }	 
+	    if (!in_array($result[0], $portals)){
+		$sites_rows[] = array($result[0],$result[1]);
+		}
+	}	 
      //return output as a json object;
      drupal_json_output($sites_rows);
  
