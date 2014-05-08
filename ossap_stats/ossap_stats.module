@@ -187,10 +187,10 @@ function ossap_stats_theme() {
   return array(
     'ossap_stats_embed_js' => array(
       'variables' => array(
-        'aggregates' => NULL,
-        'os_version' => NULL,
-        'messages' => NULL,
-        'getsatisfaction' => NULL,
+    //    'aggregates' => NULL,
+    //    'os_version' => NULL,
+    //    'messages' => NULL,
+    //    'getsatisfaction' => NULL,
         'visited_sites' => NULL,
         'viewed_pages' => NULL
 		
@@ -215,36 +215,36 @@ function _ossap_stats_page() {
   // Prepares the data array to render to the page as JSON.
   $data = array(
     'success' => TRUE,
-    'child_domains' => $child_domains,
-    'aggregates' => variable_get('ossap_stats_aggregates', array()),
-    'os_version' => _ossap_stats_get_os_version(),
+   // 'child_domains' => $child_domains,
+   // 'aggregates' => variable_get('ossap_stats_aggregates', array()),
+  //  'os_version' => _ossap_stats_get_os_version(),
   );
 
   // Adds GetSatisfaction statistics if any statistics exist.
-  $getsatisfaction = variable_get('ossap_stats_getsatisfaction', NULL);
+ /* $getsatisfaction = variable_get('ossap_stats_getsatisfaction', NULL);
   if ($getsatisfaction !== NULL) {
     $data['getsatisfaction'] = $getsatisfaction;
-  }
+  }*/
 
   // Adds activity statistics if any statistics exist.
-  $activity = variable_get('ossap_stats_activity', NULL);
+ /* $activity = variable_get('ossap_stats_activity', NULL);
   if ($activity !== NULL) {
     $data['activity'] = $activity;
-  }
+  } */
   
   // Add most visited sites statistics if any statistics exist.
   $most_visited_sites = variable_get('visited_sites', NULL);
   if ($most_visited_sites !== NULL) {
-    $data['most_visited_sites'] = $most_visited_sites;
+    $data['visited_sites'] = $most_visited_sites;
   }
   
   // Add most viewed pages statistics if any statistics exist.
   $most_viewed_pages = variable_get('viewed_pages', NULL);
   if ($most_viewed_pages !== NULL) {
-    $data['most_viewed_pages'] = $most_viewed_pages;
+    $data['viewed_pages'] = $most_viewed_pages;
   }
-
-  drupal_json_output($data);
+   
+   drupal_json_output($data);
 }
 
 /**
@@ -285,9 +285,8 @@ function _ossap_stats_embed_js($stat) {
     'visited_sites' => $most_visited_sites,
     'viewed_pages' => $most_viewed_pages,
   );
-
-  print theme('ossap_stats_embed_js', $variables);
-  exit;
+   print theme('ossap_stats_embed_js', $variables);
+   exit;
 }
 
 /**
@@ -363,6 +362,7 @@ function ossap_stats_most_viewed_pages_cron_worker(){
   if (!empty($most_viewed_pages_stats)) {
     variable_set('viewed_pages', $most_viewed_pages_stats);
   }
+   var_dump($most_viewed_pages_stats);
 }
 
 

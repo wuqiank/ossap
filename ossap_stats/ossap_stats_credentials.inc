@@ -58,7 +58,7 @@ function ossap_stats_design_output($type){
     $sort_pageviews = '-ga:pageviews';
     $sort_visits = '-ga:visits';
     $start_date = '2014-04-20' ;
-	$end_date = '2014-04-25'  ;
+	$end_date = '2014-05-10'  ;
 	
     $max_results = 5;
     //get credentials 
