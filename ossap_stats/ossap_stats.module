@@ -191,8 +191,8 @@ function ossap_stats_theme() {
         'os_version' => NULL,
         'messages' => NULL,
         'getsatisfaction' => NULL,
-        'ossap_stats_visited_pages' => NULL,
-        'ossap_stats_viewed_pages' => NULL
+        'visited_sites' => NULL,
+        'viewed_pages' => NULL
 		
       ),
       'template' => 'ossap-stats-embed-js',
@@ -233,13 +233,13 @@ function _ossap_stats_page() {
   }
   
   // Add most visited sites statistics if any statistics exist.
-  $most_visited_sites = variable_get('ossap_stats_most_visited_sites', NULL);
+  $most_visited_sites = variable_get('visited_sites', NULL);
   if ($most_visited_sites !== NULL) {
     $data['most_visited_sites'] = $most_visited_sites;
   }
   
   // Add most viewed pages statistics if any statistics exist.
-  $most_viewed_pages = variable_get('ossap_stats_most_viewed_pages', NULL);
+  $most_viewed_pages = variable_get('viewed_pages', NULL);
   if ($most_viewed_pages !== NULL) {
     $data['most_viewed_pages'] = $most_viewed_pages;
   }
@@ -258,10 +258,10 @@ function _ossap_stats_embed_js($stat) {
   $getsatisfaction = variable_get('ossap_stats_getsatisfaction', array());
   
   // Prepares any available Most visited statistics.
-  $most_visited_sites = variable_get('ossap_stats_most_visited_sites', array());
+  $most_visited_sites = variable_get('visited_sites', array());
   
   // Prepares any available Most viewed statistics.
-  $most_viewed_pages = variable_get('ossap_stats_most_viewed_pages', array());
+  $most_viewed_pages = variable_get('viewed_pages', array());
   
   // Prepares the activity messages.
   $messages = '';
@@ -282,8 +282,8 @@ function _ossap_stats_embed_js($stat) {
     'messages' => $messages,
     'getsatisfaction' => $getsatisfaction,
     //added variables for most_visited_sites and most_viewed_pages
-    'most_visited_sites' => $most_visited_sites,
-    'most_viewed_pages' => $most_viewed_pages
+    'visited_sites' => $most_visited_sites,
+    'viewed_pages' => $most_viewed_pages,
   );
 
   print theme('ossap_stats_embed_js', $variables);
@@ -310,7 +310,7 @@ function ossap_stats_cron() {
   $queue = DrupalQueue::get('ossap_stats_queue');
   $queue->createQueue();
   // Add an array key as a new cron job key
-  $stats = array('sites', 'getsatisfaction', 'activity', 'most_visited_sites', 'most_viewed_pages');
+  $stats = array('sites', 'getsatisfaction', 'activity', 'visited_sites', 'viewed_pages');
   foreach ($stats as $stat) {
     $queue->createItem($stat);
   }
@@ -331,10 +331,10 @@ function ossap_stats_block_worker($stat = '') {
       ossap_stats_activity_cron_worker();
       break;
     // Add a case statement in the cron worker function
-    case 'most_visited_sites':
+    case 'visited_sites':
       ossap_stats_most_visited_sites_cron_worker();
       break;
-    case 'most_viewed_pages':
+    case 'viewed_pages':
       ossap_stats_most_viewed_pages_cron_worker();
       break;
   }
@@ -349,7 +349,7 @@ function ossap_stats_most_visited_sites_cron_worker(){
   
   $most_visited_sites_stats = $function();
   if (!empty($most_visited_sites_stats)) {
-    variable_set('ossap_stats_most_visited_sites', $most_visited_sites_stats);
+    variable_set('visited_sites', $most_visited_sites_stats);
   }
 }
 
@@ -361,7 +361,7 @@ function ossap_stats_most_viewed_pages_cron_worker(){
   
   $most_viewed_pages_stats = $function();
   if (!empty($most_viewed_pages_stats)) {
-    variable_set('ossap_stats_most_viewed_pages', $most_viewed_pages_stats);
+    variable_set('viewed_pages', $most_viewed_pages_stats);
   }
 }
 
