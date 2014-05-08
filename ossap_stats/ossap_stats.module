@@ -165,7 +165,12 @@ function ossap_stats_viewed_pages(){
 	 
      //create the array of results
      foreach($results['rows'] as $result) {
-         $pages_rows[] = array($result[0],$result[1]);
+         if ($result[1] != '/') {
+           $combined_page = $result[0].$result[1];
+         } else {
+             $combined_page = $result[0].'/home';
+         }
+         $pages_rows[] = array($combined_page,$result[2]);
      }
 	 
      //return output as a json object;
