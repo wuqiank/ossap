@@ -36,6 +36,7 @@ function ossap_stats_menu() {
     'title' => t('OpenScholar Board - Most Viewed Pages'),
     'type' => MENU_CALLBACK,
     'page callback' => 'ossap_stats_viewed_pages',
+    'page arguments' => array(TRUE);
     'access callback' => TRUE,
   );
   
@@ -43,6 +44,7 @@ function ossap_stats_menu() {
     'title' => t('OpenScholar Board - Most visited Sites'),
     'type' => MENU_CALLBACK,
     'page callback' => 'ossap_stats_visited_sites',
+    'page arguments' => array(TRUE);
     'access callback' => TRUE,
   );
   
@@ -137,7 +139,7 @@ function ossap_stats_load_includes(){
 * ossap_stats_visited_sites()
 * no parameters. returns most frequently visited sites
 */
- function ossap_stats_visited_sites(){
+ function ossap_stats_visited_sites($output_json = FALSE){
      //load the includes
      ossap_stats_load_includes();
 
@@ -152,16 +154,21 @@ function ossap_stats_load_includes(){
         $sites_rows[] = array($result[0],$result[1]);
         }
     }
+    
+    if($output_json) {
+     	//return output as a json object;
+     	drupal_json_output($sites_rows);
+     	return NULL;
+    }
      //return output as a json object;
-     drupal_json_output($sites_rows);
- 
+     return $sites_rows;
  }
 
 /*
 * ossap_stats_viewed_pages()
 * no parameters. returns most frequently viewed pages
 */
-function ossap_stats_viewed_pages(){
+function ossap_stats_viewed_pages($output_json = FALSE){
      //load the includes
      ossap_stats_load_includes();
      // portals list which should be avoided in the output
@@ -181,7 +188,13 @@ function ossap_stats_viewed_pages(){
      }
      
      //return output as a json object;
-     drupal_json_output($pages_rows);
+     if($output_json) {
+     	//return output as a json object;
+     	drupal_json_output($sites_rows);
+     	return NULL;
+    }
+     //return output as a json object;
+     return $sites_rows;
  }
 
 /**

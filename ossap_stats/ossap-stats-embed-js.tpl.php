@@ -27,12 +27,12 @@ if (isset($getsatisfaction) && !empty($getsatisfaction)) {
   
 if (isset($most_visited_sites) && !empty($most_visited_sites)) {
   foreach ($most_visited_sites as $key => $value) {
-    $aggregates["{$key}"] = $value;
+    $aggregates["most-visited-{$key}"] = "{$value[0]} {$value[1]}";
   }
 }
 if (isset($most_viewed_pages) && !empty($most_viewed_pages)) {
   foreach ($most_viewed_pages as $key => $value) {
-    $aggregates["{$key}"] = $value;
+    $aggregates["most-viewed-{$key}"] = "{$value[0]} {$value[1]}";
   }
 }
 
