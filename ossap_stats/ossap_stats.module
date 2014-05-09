@@ -164,17 +164,20 @@ function ossap_stats_load_includes(){
 function ossap_stats_viewed_pages(){
      //load the includes
      ossap_stats_load_includes();
+     // portals list which should be avoided in the output
+     $portals = array('hwp.harvard.edu','projects.iq.harvard.edu','scholar.harvard.edu');
      //get results from the design_output function by sending the parameter of type = pageviews
      $results = ossap_stats_design_output('pageviews');
      
      //create the array of results
      foreach($results['rows'] as $result) {
-         if ($result[1] != '/') {
-           $combined_page = $result[0].$result[1];
-         } else {
-             $combined_page = $result[0].'/home';
+         if ($result[1] == '/') {
+            if (!in_array($result[0], $portals)){
+                $combined_page = $result[0];
+              } 
          }
-         $pages_rows[] = array($combined_page,$result[2]);
+        $combined_page = $result[0].$result[1];
+        $pages_rows[] = array($combined_page,$result[2]);
      }
      
      //return output as a json object;
