@@ -31,7 +31,7 @@ function ossap_stats_menu() {
     'access callback' => TRUE,
     'type' => MENU_CALLBACK,
   );
-  //osboard menu start
+  //ossap menu start
   $items['ossap/most-viewed-pages'] = array(
     'title' => t('OpenScholar Board - Most Viewed Pages'),
     'type' => MENU_CALLBACK,
@@ -57,7 +57,7 @@ function ossap_stats_menu() {
     'page arguments' => array('ossap_stats_settings_form'),
     'access arguments' => array('administer content'),
   );
-  //osboard menu start
+  ////ossap menu end
   return $items;
 }
 
@@ -148,7 +148,7 @@ function ossap_stats_load_includes(){
      //get results from the design_output function by sending the parameter of type = visits
      $results = ossap_stats_design_output('visits');
 
-     //create the array of results
+     //create the array of results after checking whether the url is a portal url
      foreach($results['rows'] as $result) {
         if (!in_array($result[0], $portals)){
         $sites_rows[] = array($result[0],$result[1]);
@@ -160,7 +160,7 @@ function ossap_stats_load_includes(){
      	drupal_json_output($sites_rows);
      	return NULL;
     }
-     //return output as a json object;
+     //return output as an array object;
      return $sites_rows;
  }
 
@@ -176,7 +176,8 @@ function ossap_stats_viewed_pages($output_json = FALSE){
      //get results from the design_output function by sending the parameter of type = pageviews
      $results = ossap_stats_design_output('pageviews');
      
-     //create the array of results
+     //create the array of results and filter out urls that are portals
+	 //as those are not being considered
      foreach($results['rows'] as $result) {
          if ((strlen($result[1]) == 1) && (!in_array($result[0], $portals))){
 		        $result[1] = '';
@@ -192,7 +193,7 @@ function ossap_stats_viewed_pages($output_json = FALSE){
      	drupal_json_output($sites_rows);
      	return NULL;
     }
-     //return output as a json object;
+     //return output as an array object;
      return $sites_rows;
  }
 
