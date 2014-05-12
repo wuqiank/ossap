@@ -143,7 +143,7 @@ function ossap_stats_load_includes(){
      //load the includes
      ossap_stats_load_includes();
 
-     // portals list which should be avoided in the output
+     //portals list which should be avoided in the output
      $portals = array('hwp.harvard.edu','projects.iq.harvard.edu','scholar.harvard.edu');
      //get results from the design_output function by sending the parameter of type = visits
      $results = ossap_stats_design_output('visits');
@@ -177,7 +177,7 @@ function ossap_stats_viewed_pages($output_json = FALSE){
      $results = ossap_stats_design_output('pageviews');
      
      //create the array of results and filter out urls that are portals
-	 //as those are not being considered
+     //as those are not being considered
      foreach($results['rows'] as $result) {
          if ((strlen($result[1]) == 1) && (!in_array($result[0], $portals))){
 		        $result[1] = '';
@@ -189,8 +189,8 @@ function ossap_stats_viewed_pages($output_json = FALSE){
      
      //return output as a json object;
      if($output_json) {
-     	//return output as a json object;
-     	drupal_json_output($sites_rows);
+        //return output as a json object;
+        drupal_json_output($sites_rows);
      	return NULL;
     }
      //return output as an array object;
