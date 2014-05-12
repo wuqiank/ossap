@@ -17,7 +17,7 @@ function ossap_stats_check_credentials(){
     //create a new instance of Google_client
     $client = new Google_Client();
     // set the application name
-    $client->setApplicationName('OS board');
+    $client->setApplicationName('OSSAP Stats');
     
     //set the credentials, clientid and accesstype
     $fid = variable_get('os_board_private_key_fid', '');
@@ -28,10 +28,10 @@ function ossap_stats_check_credentials(){
       fclose($fhandle);
     }
     
-    $client->setAssertionCredentials(new Google_AssertionCredentials(variable_get('os_board_service_gmail'), array($scope),
+    $client->setAssertionCredentials(new Google_AssertionCredentials(variable_get('ossap_stats_service_gmail'), array($scope),
                               $result));
                               
-    $client->setClientId(variable_get('os_board_client_id'));
+    $client->setClientId(variable_get('ossap_stats_client_id'));
     $client->setAccessType($access_type);
     $client->getAccessToken();
     
@@ -57,10 +57,8 @@ function ossap_stats_design_output($type){
     $metrics_visits = 'ga:visits';
     $sort_pageviews = '-ga:pageviews';
     $sort_visits = '-ga:visits';
-    $start_date = '2014-04-20' ;
-    $end_date = '2014-05-10'  ;
-    
-    
+    //changed date to auto go back 1 day.
+    $start_date = $end_date = date('Y-m-d', strtotime('- 1 day'));
     //get credentials 
      $service = ossap_stats_check_credentials();
     if ($type == 'visits'){

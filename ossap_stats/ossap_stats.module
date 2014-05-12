@@ -36,7 +36,7 @@ function ossap_stats_menu() {
     'title' => t('OpenScholar Board - Most Viewed Pages'),
     'type' => MENU_CALLBACK,
     'page callback' => 'ossap_stats_viewed_pages',
-    'page arguments' => array(TRUE);
+    'page arguments' => array(TRUE),
     'access callback' => TRUE,
   );
   
@@ -44,7 +44,7 @@ function ossap_stats_menu() {
     'title' => t('OpenScholar Board - Most visited Sites'),
     'type' => MENU_CALLBACK,
     'page callback' => 'ossap_stats_visited_sites',
-    'page arguments' => array(TRUE);
+    'page arguments' => array(TRUE),
     'access callback' => TRUE,
   );
   
@@ -178,13 +178,12 @@ function ossap_stats_viewed_pages($output_json = FALSE){
      
      //create the array of results
      foreach($results['rows'] as $result) {
-         if ($result[1] == '/') {
-            if (!in_array($result[0], $portals)){
-                $combined_page = $result[0];
-              } 
-         }
+         if ((strlen($result[1]) == 1) && (!in_array($result[0], $portals))){
+		        $result[1] = '';
+                $combined_page = $result[0].$result[1];
+              }
         $combined_page = $result[0].$result[1];
-        $pages_rows[] = array($combined_page,$result[2]);
+        $rows[] = array($combined_page,$result[2]);
      }
      
      //return output as a json object;
@@ -346,7 +345,8 @@ function ossap_stats_block_worker($stat = '') {
     case 'activity':
       ossap_stats_activity_cron_worker();
       break;
-    // Add a case statement in the cron worker function
+    // Add a case statement in the cron worker function for
+	//for most_visited_sites and most_viewed_pages
     case 'visited_sites':
       ossap_stats_most_visited_sites_cron_worker();
       break;
