@@ -41,14 +41,22 @@ function ossap_stats_menu() {
   );
   
   $items['ossap/most-visited-sites'] = array(
-    'title' => t('OpenScholar Board - Most visited Sites'),
+    'title' => t('OpenScholar Board - Most Visited Sites'),
     'type' => MENU_CALLBACK,
     'page callback' => 'ossap_stats_visited_sites',
     'page arguments' => array(TRUE),
     'access callback' => TRUE,
   );
   
-   $items['admin/config/ossap_os_board'] = array(
+  $items['ossap/real-time-visitors'] = array(
+    'title' => t('OpenScholar Board - Real Time Visitors'),
+    'type' => MENU_CALLBACK,
+    'page callback' => 'ossap_stats_rt_visitors',
+    'page arguments' => array(TRUE),
+    'access callback' => TRUE,
+  );
+  
+  $items['admin/config/ossap_os_board'] = array(
     'title' => 'OSSA - OpenScholar Board Settings',
     'description' => 'Administer OpenScholar Board specific settings.',
     'position' => 'left',
@@ -156,13 +164,13 @@ function ossap_stats_load_includes(){
     }
     
     if($output_json) {
-     	//return output as a json object;
-     	drupal_json_output($sites_rows);
-     	return NULL;
+         //return output as a json object;
+         drupal_json_output($sites_rows);
+         return NULL;
     }
      //return output as an array object;
      return $sites_rows;
- }
+}
 
 /*
 * ossap_stats_viewed_pages()
@@ -180,7 +188,7 @@ function ossap_stats_viewed_pages($output_json = FALSE){
      //as those are not being considered
      foreach($results['rows'] as $result) {
          if ((strlen($result[1]) == 1) && (!in_array($result[0], $portals))){
-		        $result[1] = '';
+                $result[1] = '';
                 $combined_page = $result[0].$result[1];
               }
         $combined_page = $result[0].$result[1];
@@ -190,12 +198,34 @@ function ossap_stats_viewed_pages($output_json = FALSE){
      //return output as a json object;
      if($output_json) {
         //return output as a json object;
-        drupal_json_output($sites_rows);
-     	return NULL;
+        drupal_json_output($rows);
+        return NULL;
     }
      //return output as an array object;
-     return $sites_rows;
- }
+     return $rows;
+}
+
+/*
+* ossap_stats_rt_visitors()
+* no parameters. returns real time visitors
+*/
+function ossap_stats_rt_visitors($output_json = FALSE){
+     //load the includes
+     ossap_stats_load_includes();
+     //get results from the ossap_stats_return_users function
+     $results = ossap_stats_return_users();
+     
+     $data = $results['rows'][0][0];
+     
+     //return output as a json object;
+     if($output_json) {
+        //return output as a json object;
+        drupal_json_output($data);
+        return NULL;
+     }
+     //return output as an array object;
+     return $data;
+}
 
 /**
  * Implements hook_theme().
@@ -209,8 +239,8 @@ function ossap_stats_theme() {
         'messages' => NULL,
         'getsatisfaction' => NULL,
         'visited_sites' => NULL,
-        'viewed_pages' => NULL
-        
+        'viewed_pages' => NULL,
+        'rt_visitors' => NULL,
       ),
       'template' => 'ossap-stats-embed-js',
     ),
@@ -260,8 +290,14 @@ function _ossap_stats_page() {
   if ($most_viewed_pages !== NULL) {
     $data['viewed_pages'] = $most_viewed_pages;
   }
+  
+  // Add real time visitors statistics if any statistics exist.
+  $real_time_visitors = variable_get('rt_visitors', NULL);
+  if ($real_time_visitors !== NULL) {
+    $data['rt_visitors'] = $real_time_visitors;
+  }
    
-   drupal_json_output($data);
+  drupal_json_output($data);
 }
 
 /**
@@ -279,6 +315,9 @@ function _ossap_stats_embed_js($stat) {
   
   // Prepares any available Most viewed statistics.
   $most_viewed_pages = variable_get('viewed_pages', array());
+  
+  // Prepares any available real time visitors statistics.
+  $real_time_visitors = variable_get('rt_visitors', array());
   
   // Prepares the activity messages.
   $messages = '';
@@ -298,9 +337,10 @@ function _ossap_stats_embed_js($stat) {
     'os_version' => _ossap_stats_get_os_version(),
     'messages' => $messages,
     'getsatisfaction' => $getsatisfaction,
-    //added variables for most_visited_sites and most_viewed_pages
+    //added variables for most_visited_sites and most_viewed_pages and real_time_visitors
     'visited_sites' => $most_visited_sites,
     'viewed_pages' => $most_viewed_pages,
+    'rt_visitors' => $real_time_visitors,
   );
    print theme('ossap_stats_embed_js', $variables);
    exit;
@@ -347,12 +387,15 @@ function ossap_stats_block_worker($stat = '') {
       ossap_stats_activity_cron_worker();
       break;
     // Add a case statement in the cron worker function for
-	//for most_visited_sites and most_viewed_pages
+    //for most_visited_sites and most_viewed_pages
     case 'visited_sites':
       ossap_stats_most_visited_sites_cron_worker();
       break;
     case 'viewed_pages':
       ossap_stats_most_viewed_pages_cron_worker();
+      break;
+    case 'rt_visitors':
+      ossap_stats_real_time_visitors_cron_worker();
       break;
   }
 }
@@ -379,6 +422,18 @@ function ossap_stats_most_viewed_pages_cron_worker(){
   $most_viewed_pages_stats = $function();
   if (!empty($most_viewed_pages_stats)) {
     variable_set('viewed_pages', $most_viewed_pages_stats);
+  }
+}
+
+function ossap_stats_real_time_visitors_cron_worker(){
+  $function = 'ossap_stats_rt_visitors';
+  if (!function_exists($function)) {
+    return;
+  }
+  
+  $real_time_visitors_stats = $function();
+  if (!empty($real_time_visitors_stats)) {
+    variable_set('rt_visitors', $real_time_visitors_stats);
   }
 }
 

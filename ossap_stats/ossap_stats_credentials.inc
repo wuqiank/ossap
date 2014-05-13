@@ -23,7 +23,7 @@ function ossap_stats_check_credentials(){
     $service_gmail = variable_get('ossap_stats_service_gmail');
     $client_id = variable_get('ossap_stats_client_id');
     $fid = variable_get('os_board_private_key_fid', '');
-	
+    
     //create a new instance of Google_client
     $client = new Google_Client();
     // set the application name
@@ -68,10 +68,10 @@ function ossap_stats_design_output($type){
     $analytics_id = variable_get('ossap_stats_analytics_id');
     //changed date to auto go back 1 day.
     $start_date = $end_date = date('Y-m-d', strtotime('- 1 day'));
-	
+    
     //get credentials 
     $service = ossap_stats_check_credentials();
-	 
+     
     //set values depending on the type of the parameter
     if ($type == 'visits'){
         $sort = $sort_visits;
@@ -105,11 +105,11 @@ function ossap_stats_return_users(){
         //declare variables
         $dimensions = 'rt:source';
         $rt_users = 'rt:activeUsers';
-	$analytics_id = variable_get('ossap_stats_analytics_id');
+        $analytics_id = variable_get('ossap_stats_analytics_id');
         
         //validate the credentials
         $service = ossap_stats_check_credentials();
-	//set the optional parameters
+        //set the optional parameters
         $optparams = array ('dimensions' => $dimensions);
         
         //get result 
@@ -132,10 +132,10 @@ function ossap_stats_return_pages(){
         $max_results = 5;
         $page_views = 'rt:pageviews';
         $analytics_id = variable_get('ossap_stats_analytics_id')
-		
+        
         //validate the credentials
         $service = ossap_stats_check_credentials();
-	//set the optional parameters
+    //set the optional parameters
         $optparams = array ('dimensions' => $dimensions , 'sort' =>  $sort, 'max-results' => $max_results );
         
         //get result 
