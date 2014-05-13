@@ -35,7 +35,7 @@ if (isset($most_viewed_pages) && !empty($most_viewed_pages)) {
   }
 }
 if (isset($real_time_visitors) && !empty($real_time_visitors)) {
-  $aggregates['real_time_visitors'] = $real_time_visitors;
+  $aggregates['real-time-visitors'] = $real_time_visitors;
 }
 
 
