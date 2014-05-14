@@ -56,7 +56,7 @@ function ossap_stats_menu() {
     'access callback' => TRUE,
   );
   
-  $items['admin/config/ossap_stats_settings'] = array(
+  $items['admin/config/ossap_stats_credentials_setting'] = array(
     'title' => 'OSSA - OpenScholar Stats Settings',
     'description' => 'Administer OpenScholar Stats specific settings.',
     'position' => 'left',
