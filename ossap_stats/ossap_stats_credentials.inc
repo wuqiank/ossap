@@ -5,7 +5,7 @@
  * Statistics for OpenScholar Single Access Point (OSSAP).
  */
 
-/* 
+/**
 * ossap_stats_check_credentials()
 * authenticate credentials by creating a new Google_client object and 
 * sending it to google analytics
@@ -22,7 +22,7 @@ function ossap_stats_check_credentials(){
     $scope = 'https://www.googleapis.com/auth/analytics.readonly';
     $service_gmail = variable_get('ossap_stats_service_gmail');
     $client_id = variable_get('ossap_stats_client_id');
-    $fid = variable_get('os_board_private_key_fid', '');
+    $fid = variable_get('ossap_stats_private_key_fid', '');
     
     //create a new instance of Google_client
     $client = new Google_Client();
@@ -50,7 +50,7 @@ function ossap_stats_check_credentials(){
     return $service;    
     }
     
-/* 
+/**
 * ossap_stats_design_output
 * parameters = $type which could be a pageview or visits
 * taps into google analytics and retrieves the results for 
@@ -95,7 +95,7 @@ function ossap_stats_design_output($type){
     return $results;
 }
 
-/* 
+/**
 * ossap_stats_return_users()
 * no parameters 
 * taps into google analytics and retrieves the results for 

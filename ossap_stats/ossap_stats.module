@@ -65,11 +65,11 @@ function ossap_stats_menu() {
     'page arguments' => array('ossap_stats_settings_form'),
     'access arguments' => array('administer content'),
   );
-  ////ossap menu end
+  //ossap menu end
   return $items;
 }
 
-/*
+/**
 * ossap_stats_settings_form
 * parameters : form_state
 * creates an admin form for ossap_stats for admins to
@@ -133,7 +133,7 @@ function ossap_stats_settings_form($form_state){
 
 }
 
-/*
+/**
 * ossap_stats_load_includes
 * include all the required files via module_load_include
 */
@@ -143,7 +143,7 @@ function ossap_stats_load_includes(){
     module_load_include('inc', 'ossap_stats', 'ossap_stats_credentials');
 }
 
-/*
+/**
 * ossap_stats_visited_sites()
 * no parameters. returns most frequently visited sites
 */
@@ -172,7 +172,7 @@ function ossap_stats_load_includes(){
      return $sites_rows;
 }
 
-/*
+/**
 * ossap_stats_viewed_pages()
 * no parameters. returns most frequently viewed pages
 */
@@ -197,7 +197,6 @@ function ossap_stats_viewed_pages($output_json = FALSE){
      
      //return output as a json object;
      if($output_json) {
-        //return output as a json object;
         drupal_json_output($rows);
         return NULL;
     }
@@ -205,7 +204,7 @@ function ossap_stats_viewed_pages($output_json = FALSE){
      return $rows;
 }
 
-/*
+/**
 * ossap_stats_rt_visitors()
 * no parameters. returns real time visitors
 */
@@ -219,7 +218,6 @@ function ossap_stats_rt_visitors($output_json = FALSE){
      
      //return output as a json object;
      if($output_json) {
-        //return output as a json object;
         drupal_json_output($data);
         return NULL;
      }
@@ -367,7 +365,7 @@ function ossap_stats_cron() {
   $queue = DrupalQueue::get('ossap_stats_queue');
   $queue->createQueue();
   // Add an array key as a new cron job key
-  $stats = array('sites', 'getsatisfaction', 'activity', 'visited_sites', 'viewed_pages');
+  $stats = array('sites', 'getsatisfaction', 'activity', 'visited_sites', 'viewed_pages', 'rt_visitors');
   foreach ($stats as $stat) {
     $queue->createItem($stat);
   }
@@ -388,7 +386,7 @@ function ossap_stats_block_worker($stat = '') {
       ossap_stats_activity_cron_worker();
       break;
     // Add a case statement in the cron worker function for
-    //for most_visited_sites and most_viewed_pages
+    //for most_visited_sites, most_viewed_pages and real_time visitors
     case 'visited_sites':
       ossap_stats_most_visited_sites_cron_worker();
       break;
@@ -401,8 +399,10 @@ function ossap_stats_block_worker($stat = '') {
   }
 }
 
-// Add a cron worker callback function that calls the external function
-function ossap_stats_most_visited_sites_cron_worker(){
+/**
+ * Cron worker callback for OSSAP most_visited_sites
+ */
+ function ossap_stats_most_visited_sites_cron_worker(){
   $function = 'ossap_stats_visited_sites';
   if (!function_exists($function)) {
     return;
@@ -414,6 +414,9 @@ function ossap_stats_most_visited_sites_cron_worker(){
   }
 }
 
+/**
+ * Cron worker callback for OSSAP most_viewed_sites
+ */
 function ossap_stats_most_viewed_pages_cron_worker(){
   $function = 'ossap_stats_viewed_pages';
   if (!function_exists($function)) {
@@ -426,6 +429,9 @@ function ossap_stats_most_viewed_pages_cron_worker(){
   }
 }
 
+/**
+ * Cron worker callback for OSSAP real_time_users
+ */
 function ossap_stats_real_time_visitors_cron_worker(){
   $function = 'ossap_stats_rt_visitors';
   if (!function_exists($function)) {
@@ -438,7 +444,9 @@ function ossap_stats_real_time_visitors_cron_worker(){
   }
 }
 
-
+/**
+ * Cron worker callback for get_satisfaction
+ */
 function ossap_stats_getsatisfaction_cron_worker() {
   $function = 'getsatisfaction_integration_stats';
   if (!function_exists($function)) {
