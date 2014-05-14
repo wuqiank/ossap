@@ -23,17 +23,19 @@ if (isset($getsatisfaction) && !empty($getsatisfaction)) {
   foreach ($getsatisfaction as $key => $value) {
     $aggregates["gs-{$key}"] = $value;
   }
- }
-  
+}
 if (isset($most_visited_sites) && !empty($most_visited_sites)) {
   foreach ($most_visited_sites as $key => $value) {
-    $aggregates["most-visited-{$key}"] = "{$value[0]} {$value[1]}";
+    $aggregates["most-visited-sites{$key}"] = "{$value[0]} {$value[1]}";
   }
 }
 if (isset($most_viewed_pages) && !empty($most_viewed_pages)) {
   foreach ($most_viewed_pages as $key => $value) {
-    $aggregates["most-viewed-{$key}"] = "{$value[0]} {$value[1]}";
+    $aggregates["most-viewed-pages{$key}"] = "{$value[0]} {$value[1]}";
   }
+}
+if (isset($real_time_visitors) && !empty($real_time_visitors)) {
+  $aggregates['real-time-visitors'] = $real_time_visitors;
 }
 
 

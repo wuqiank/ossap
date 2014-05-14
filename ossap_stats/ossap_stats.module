@@ -31,40 +31,48 @@ function ossap_stats_menu() {
     'access callback' => TRUE,
     'type' => MENU_CALLBACK,
   );
-  //osboard menu start
+  //ossap menu start
   $items['ossap/most-viewed-pages'] = array(
     'title' => t('OpenScholar Board - Most Viewed Pages'),
     'type' => MENU_CALLBACK,
     'page callback' => 'ossap_stats_viewed_pages',
-  	'page arguments' => array(TRUE),
+    'page arguments' => array(TRUE),
     'access callback' => TRUE,
   );
   
   $items['ossap/most-visited-sites'] = array(
-    'title' => t('OpenScholar Board - Most visited Sites'),
+    'title' => t('OpenScholar Board - Most Visited Sites'),
     'type' => MENU_CALLBACK,
     'page callback' => 'ossap_stats_visited_sites',
-  	'page arguments' => array(TRUE),
+    'page arguments' => array(TRUE),
     'access callback' => TRUE,
   );
   
-   $items['admin/config/ossap_os_board'] = array(
-    'title' => 'OSSA - OpenScholar Board Settings',
-    'description' => 'Administer OpenScholar Board specific settings.',
+  $items['ossap/real-time-visitors'] = array(
+    'title' => t('OpenScholar Board - Real Time Visitors'),
+    'type' => MENU_CALLBACK,
+    'page callback' => 'ossap_stats_rt_visitors',
+    'page arguments' => array(TRUE),
+    'access callback' => TRUE,
+  );
+  
+  $items['admin/config/ossap_stats_settings'] = array(
+    'title' => 'OSSA - OpenScholar Stats Settings',
+    'description' => 'Administer OpenScholar Stats specific settings.',
     'position' => 'left',
     'weight' => -5,
     'page callback' => 'drupal_get_form',
     'page arguments' => array('ossap_stats_settings_form'),
     'access arguments' => array('administer content'),
   );
-  //osboard menu start
+  ////ossap menu end
   return $items;
 }
 
 /*
 * ossap_stats_settings_form
 * parameters : form_state
-* creates an admin form for os_board for admins to
+* creates an admin form for ossap_stats for admins to
 * enter the data for activating Google Analytics 
 */
 function ossap_stats_settings_form($form_state){
@@ -72,7 +80,7 @@ function ossap_stats_settings_form($form_state){
 
  $form['ossap_stats_settings'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Enter OS Stats setting details here'),
+    '#title' => t('Enter OS Stats settings details here'),
     '#weight' => 0,
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
@@ -81,7 +89,6 @@ function ossap_stats_settings_form($form_state){
   $form['ossap_stats_settings']['ossap_stats_private_key'] = array(
     '#type' => 'textfield',
     '#title' => t('Private Key'),
-    '#required' => TRUE,
     '#default_value' => variable_get('ossap_stats_private_key',""),
     '#description' => t('Add Private Key here'),
   );
@@ -142,51 +149,84 @@ function ossap_stats_load_includes(){
 */
  function ossap_stats_visited_sites($output_json = FALSE){
      //load the includes
-	 ossap_stats_load_includes();
+     ossap_stats_load_includes();
+
+     //portals list which should be avoided in the output
+     $portals = array('hwp.harvard.edu','projects.iq.harvard.edu','scholar.harvard.edu');
      //get results from the design_output function by sending the parameter of type = visits
      $results = ossap_stats_design_output('visits');
 
-     //create the array of results
+     //create the array of results after checking whether the url is a portal url
      foreach($results['rows'] as $result) {
-			$sites_rows[] = array($result[0],$result[1]);
-     }
-
-     if($output_json) {
-     	//return output as a json object;
-     	drupal_json_output($sites_rows);
-     	return NULL;
-     }
- 
+        if (!in_array($result[0], $portals)){
+        $sites_rows[] = array($result[0],$result[1]);
+        }
+    }
+    
+    if($output_json) {
+         //return output as a json object;
+         drupal_json_output($sites_rows);
+         return NULL;
+    }
+     //return output as an array object;
      return $sites_rows;
- }
+}
 
 /*
 * ossap_stats_viewed_pages()
 * no parameters. returns most frequently viewed pages
 */
 function ossap_stats_viewed_pages($output_json = FALSE){
-	//load the includes
-	ossap_stats_load_includes();
-	//get results from the design_output function by sending the parameter of type = pageviews
-	$results = ossap_stats_design_output('pageviews');
-	 
-	//create the array of results
+     //load the includes
+     ossap_stats_load_includes();
+     // portals list which should be avoided in the output
+     $portals = array('hwp.harvard.edu','projects.iq.harvard.edu','scholar.harvard.edu');
+     //get results from the design_output function by sending the parameter of type = pageviews
+     $results = ossap_stats_design_output('pageviews');
+     
+     //create the array of results and filter out urls that are portals
+     //as those are not being considered
      foreach($results['rows'] as $result) {
-         if ($result[1] != '/') {
-           $combined_page = $result[0].$result[1];
-         } else {
-             $combined_page = $result[0].'/home';
-         }
-         $pages_rows[] = array($combined_page,$result[2]);
-     }
-	 
-     if($output_json) {
-     	//return output as a json object;
-     	drupal_json_output($pages_rows);
+         if ((strlen($result[1]) == 1) && (!in_array($result[0], $portals))){
+                $result[1] = '';
+                $combined_page = $result[0].$result[1];
+              }
+        $combined_page = $result[0].$result[1];
+        $rows[] = array($combined_page,$result[2]);
      }
      
-     return $pages_rows;
- }
+     //return output as a json object;
+     if($output_json) {
+        //return output as a json object;
+        drupal_json_output($rows);
+        return NULL;
+    }
+     //return output as an array object;
+     return $rows;
+}
+
+/*
+* ossap_stats_rt_visitors()
+* no parameters. returns real time visitors
+*/
+function ossap_stats_rt_visitors($output_json = FALSE){
+     //load the includes
+     ossap_stats_load_includes();
+     //get results from the ossap_stats_return_users function
+     $results = ossap_stats_return_users();
+     
+     $data = $results['rows'][0][0];
+     
+     //return output as a json object;
+     if($output_json) {
+        //return output as a json object;
+        drupal_json_output($data);
+        return NULL;
+     }
+     //return output as an array object;
+     return $data;
+}
+
 
 /**
  * Implements hook_theme().
@@ -199,9 +239,9 @@ function ossap_stats_theme() {
         'os_version' => NULL,
         'messages' => NULL,
         'getsatisfaction' => NULL,
-        'ossap_stats_visited_pages' => NULL,
-        'ossap_stats_viewed_pages' => NULL
-		
+        'visited_sites' => NULL,
+        'viewed_pages' => NULL,
+        'rt_visitors' => NULL,
       ),
       'template' => 'ossap-stats-embed-js',
     ),
@@ -238,20 +278,26 @@ function _ossap_stats_page() {
   $activity = variable_get('ossap_stats_activity', NULL);
   if ($activity !== NULL) {
     $data['activity'] = $activity;
-  }
+  } 
   
   // Add most visited sites statistics if any statistics exist.
-  $most_visited_sites = variable_get('ossap_stats_most_visited_sites', NULL);
+  $most_visited_sites = variable_get('visited_sites', NULL);
   if ($most_visited_sites !== NULL) {
-    $data['most_visited_sites'] = $most_visited_sites;
+    $data['visited_sites'] = $most_visited_sites;
   }
   
   // Add most viewed pages statistics if any statistics exist.
-  $most_viewed_pages = variable_get('ossap_stats_most_viewed_pages', NULL);
+  $most_viewed_pages = variable_get('viewed_pages', NULL);
   if ($most_viewed_pages !== NULL) {
-    $data['most_viewed_pages'] = $most_viewed_pages;
+    $data['viewed_pages'] = $most_viewed_pages;
   }
-
+  
+  // Add real time visitors statistics if any statistics exist.
+  $real_time_visitors = variable_get('rt_visitors', NULL);
+  if ($real_time_visitors !== NULL) {
+    $data['rt_visitors'] = $real_time_visitors;
+  }
+   
   drupal_json_output($data);
 }
 
@@ -266,10 +312,13 @@ function _ossap_stats_embed_js($stat) {
   $getsatisfaction = variable_get('ossap_stats_getsatisfaction', array());
   
   // Prepares any available Most visited statistics.
-  $most_visited_sites = variable_get('ossap_stats_most_visited_sites', array());
+  $most_visited_sites = variable_get('visited_sites', array());
   
   // Prepares any available Most viewed statistics.
-  $most_viewed_pages = variable_get('ossap_stats_most_viewed_pages', array());
+  $most_viewed_pages = variable_get('viewed_pages', array());
+  
+  // Prepares any available real time visitors statistics.
+  $real_time_visitors = variable_get('rt_visitors', array());
   
   // Prepares the activity messages.
   $messages = '';
@@ -289,13 +338,13 @@ function _ossap_stats_embed_js($stat) {
     'os_version' => _ossap_stats_get_os_version(),
     'messages' => $messages,
     'getsatisfaction' => $getsatisfaction,
-    //added variables for most_visited_sites and most_viewed_pages
-    'most_visited_sites' => $most_visited_sites,
-    'most_viewed_pages' => $most_viewed_pages
+    //added variables for most_visited_sites and most_viewed_pages and real_time_visitors
+    'visited_sites' => $most_visited_sites,
+    'viewed_pages' => $most_viewed_pages,
+    'rt_visitors' => $real_time_visitors,
   );
-
-  print theme('ossap_stats_embed_js', $variables);
-  exit;
+   print theme('ossap_stats_embed_js', $variables);
+   exit;
 }
 
 /**
@@ -318,7 +367,7 @@ function ossap_stats_cron() {
   $queue = DrupalQueue::get('ossap_stats_queue');
   $queue->createQueue();
   // Add an array key as a new cron job key
-  $stats = array('sites', 'getsatisfaction', 'activity', 'most_visited_sites', 'most_viewed_pages');
+  $stats = array('sites', 'getsatisfaction', 'activity', 'visited_sites', 'viewed_pages');
   foreach ($stats as $stat) {
     $queue->createItem($stat);
   }
@@ -338,12 +387,16 @@ function ossap_stats_block_worker($stat = '') {
     case 'activity':
       ossap_stats_activity_cron_worker();
       break;
-    // Add a case statement in the cron worker function
-    case 'most_visited_sites':
+    // Add a case statement in the cron worker function for
+    //for most_visited_sites and most_viewed_pages
+    case 'visited_sites':
       ossap_stats_most_visited_sites_cron_worker();
       break;
-    case 'most_viewed_pages':
+    case 'viewed_pages':
       ossap_stats_most_viewed_pages_cron_worker();
+      break;
+    case 'rt_visitors':
+      ossap_stats_real_time_visitors_cron_worker();
       break;
   }
 }
@@ -357,7 +410,7 @@ function ossap_stats_most_visited_sites_cron_worker(){
   
   $most_visited_sites_stats = $function();
   if (!empty($most_visited_sites_stats)) {
-    variable_set('ossap_stats_most_visited_sites', $most_visited_sites_stats);
+    variable_set('visited_sites', $most_visited_sites_stats);
   }
 }
 
@@ -369,7 +422,19 @@ function ossap_stats_most_viewed_pages_cron_worker(){
   
   $most_viewed_pages_stats = $function();
   if (!empty($most_viewed_pages_stats)) {
-    variable_set('ossap_stats_most_viewed_pages', $most_viewed_pages_stats);
+    variable_set('viewed_pages', $most_viewed_pages_stats);
+  }
+}
+
+function ossap_stats_real_time_visitors_cron_worker(){
+  $function = 'ossap_stats_rt_visitors';
+  if (!function_exists($function)) {
+    return;
+  }
+  
+  $real_time_visitors_stats = $function();
+  if (!empty($real_time_visitors_stats)) {
+    variable_set('rt_visitors', $real_time_visitors_stats);
   }
 }
 
