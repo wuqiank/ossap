@@ -1,5 +1,5 @@
 name = "OSSAP Stats"
-description = "Statistics really for OpenScholar Single Access Point (OSSAP)"
+description = "Statistics for OpenScholar Single Access Point (OSSAP)"
 core = 7.x
 dependencies[] = os_stats
 
