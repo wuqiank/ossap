@@ -367,7 +367,7 @@ function ossap_stats_cron() {
   $queue = DrupalQueue::get('ossap_stats_queue');
   $queue->createQueue();
   // Add an array key as a new cron job key
-  $stats = array('sites', 'getsatisfaction', 'activity', 'visited_sites', 'viewed_pages');
+  $stats = array('sites', 'getsatisfaction', 'activity', 'visited_sites', 'viewed_pages', 'rt_visitors');
   foreach ($stats as $stat) {
     $queue->createItem($stat);
   }
