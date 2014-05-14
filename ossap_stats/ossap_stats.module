@@ -56,9 +56,9 @@ function ossap_stats_menu() {
     'access callback' => TRUE,
   );
   
-  $items['admin/config/ossap_os_board'] = array(
-    'title' => 'OSSA - OpenScholar Board Settings',
-    'description' => 'Administer OpenScholar Board specific settings.',
+  $items['admin/config/ossap_stats_settings'] = array(
+    'title' => 'OSSA - OpenScholar Stats Settings',
+    'description' => 'Administer OpenScholar Stats specific settings.',
     'position' => 'left',
     'weight' => -5,
     'page callback' => 'drupal_get_form',
@@ -72,7 +72,7 @@ function ossap_stats_menu() {
 /*
 * ossap_stats_settings_form
 * parameters : form_state
-* creates an admin form for os_board for admins to
+* creates an admin form for ossap_stats for admins to
 * enter the data for activating Google Analytics 
 */
 function ossap_stats_settings_form($form_state){
@@ -80,7 +80,7 @@ function ossap_stats_settings_form($form_state){
 
  $form['ossap_stats_settings'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Enter OS Stats setting details here'),
+    '#title' => t('Enter OS Stats settings details here'),
     '#weight' => 0,
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,

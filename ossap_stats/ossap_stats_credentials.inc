@@ -118,29 +118,3 @@ function ossap_stats_return_users(){
         //return the results
         return $results;
 }
-
-/* 
-* ossap_stats_return_pages()
-* no parameters 
-* taps into google analytics and retrieves the results for 
-* pages that are currently active
-*/
-function ossap_stats_return_pages(){
-        //declare variables
-        $dimensions = 'rt:pagePath,rt:pageTitle';
-        $sort = '-rt:pageviews';
-        $max_results = 5;
-        $page_views = 'rt:pageviews';
-        $analytics_id = variable_get('ossap_stats_analytics_id')
-        
-        //validate the credentials
-        $service = ossap_stats_check_credentials();
-    //set the optional parameters
-        $optparams = array ('dimensions' => $dimensions , 'sort' =>  $sort, 'max-results' => $max_results );
-        
-        //get result 
-        $results = $service->data_realtime->get($analytics_id,$page_views, $optparams);
-        
-        //return the results
-        return $results;
-}
