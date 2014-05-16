@@ -160,11 +160,12 @@ function ossap_stats_load_includes(){
      foreach($results['rows'] as $result) {
 	    $domain = $result[0];
 		$domainUrl = 'http://'.$domain;
+		$userCount = $result[1];
 		
 		//check if domain is in the list of portals
-	    if (!in_array($result[0], $portals)){
+	    if (!in_array($domain, $portals)){
 		 //converting each url into a clickable link
-		   $sites_rows[] = array(l($domain,$domainUrl,array('external' => TRUE)),$result[1]);
+		   $sites_rows[] = array(l($domain,$domainUrl,array('external' => TRUE)),$userCount);
 		}
 	}
     
