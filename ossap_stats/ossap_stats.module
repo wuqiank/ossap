@@ -158,10 +158,11 @@ function ossap_stats_load_includes(){
 
      //create the array of results after checking whether the url is a portal url
      foreach($results['rows'] as $result) {
-        if (!in_array($result[0], $portals)){
-        $sites_rows[] = array($result[0],$result[1]);
-        }
-    }
+	    if (!in_array($result[0], $portals)){
+		 //converting each url into a clickable link
+		$rows[] = array(l($result[0],"http://".$result[0]),$result[1]);
+		}
+	}
     
     if($output_json) {
          //return output as a json object;
@@ -188,10 +189,13 @@ function ossap_stats_viewed_pages($output_json = FALSE){
      //as those are not being considered
      foreach($results['rows'] as $result) {
          if ((strlen($result[1]) == 1) && (!in_array($result[0], $portals))){
-                $result[1] = '';
-                $combined_page = $result[0].$result[1];
+		        //add /home to those webpages where users are browsing the home page only
+		        $result[1] = '/home';
+				//converting each url into a clickable link
+	            $combined_page = l($result[0].$result[1],"http://".$result[0].$result[1]);
               }
-        $combined_page = $result[0].$result[1];
+	    //converting each url into a clickable link
+        $combined_page = l($result[0].$result[1],"http://".$result[0].$result[1]);
         $rows[] = array($combined_page,$result[2]);
      }
      
