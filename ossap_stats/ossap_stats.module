@@ -165,7 +165,7 @@ function ossap_stats_load_includes(){
 	    //check if domain is in the list of portals
 	    if (!in_array($domain, $portals)){
 		 //converting each url into a clickable link
-		   $sites_rows[] = array(l($domain,$domainUrl,array('external' => TRUE)),$userCount);
+		   $sites_rows[] = array(l($domain,$domainUrl,array('external' => TRUE)),'('.$userCount.')');
 		}
 	}
     
@@ -207,7 +207,7 @@ function ossap_stats_viewed_pages($output_json = FALSE){
 		  } else {
 	    //converting each url into a clickable link
         $combined_page = l($domain.$pageViews,$addHttp.$domain.$pageViews); }
-        $rows[] = array($combined_page,$userCount);
+        $rows[] = array($combined_page,'('.$userCount.')');
      }
      
      //return output as a json object;
