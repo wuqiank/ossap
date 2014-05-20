@@ -22,23 +22,16 @@ function ossap_stats_check_credentials(){
     $scope = 'https://www.googleapis.com/auth/analytics.readonly';
     $service_gmail = variable_get('ossap_stats_service_gmail');
     $client_id = variable_get('ossap_stats_client_id');
-    $fid = variable_get('ossap_stats_private_key_fid', '');
+	$fname = variable_get('os_board_private_key');
+    $fid = __DIR__.'/'.$fname.'';
     
     //create a new instance of Google_client
     $client = new Google_Client();
     // set the application name
     $client->setApplicationName('OSSAP Stats');   
-   
-    //check if private_key is uploaded and read from it 
-    if (!empty($fid)) {
-      $uri = db_query('SELECT uri FROM {file_managed} WHERE fid = :fid', array(':fid' => $fid))->fetchColumn();
-      $fhandle = fopen($uri, 'r');
-      $result = fread($fhandle, filesize($uri));
-      fclose($fhandle);
-    }
     
     //create the credentials object to be sent to google analytics
-    $client->setAssertionCredentials(new Google_AssertionCredentials($service_gmail, array($scope), $result));                              
+    $client->setAssertionCredentials(new Google_AssertionCredentials($service_gmail, array($scope), file_get_contents($fid)));                              
     $client->setClientId($client_id);
     $client->setAccessType($access_type);
     $client->getAccessToken();

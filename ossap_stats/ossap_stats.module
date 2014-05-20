@@ -93,7 +93,7 @@ function ossap_stats_settings_form($form_state){
     '#description' => t('Add Private Key here'),
   );
   
-  $form['ossap_stats_settings']['ossap_stats_private_key_fid'] = array(
+/*  $form['ossap_stats_settings']['ossap_stats_private_key_fid'] = array(
     '#type' => 'managed_file',
     '#title' => t('Private Key file'),
     '#required' => TRUE,
@@ -103,7 +103,7 @@ function ossap_stats_settings_form($form_state){
        'file_validate_extensions' => array('p12'),
        'file_validate_size' => array(2*1024*1024),
         ),
-      );
+      ); */
   
   $form['ossap_stats_settings']['ossap_stats_client_id'] = array(
     '#type' => 'textfield',
