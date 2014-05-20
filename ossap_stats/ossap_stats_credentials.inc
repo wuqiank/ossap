@@ -77,13 +77,13 @@ function ossap_stats_design_output($type){
         $sort = $sort_visits;
         $metrics = $metrics_visits;
         $dimensions = 'ga:hostname';
-        $max_results = 6;
+        $max_results = 11;
      }
     else {
         $sort = $sort_pageviews;
         $metrics = $metrics_pageviews;
         $dimensions = 'ga:hostname,ga:pagePath';
-        $max_results = 5;
+        $max_results = 10;
     }
 
     //set optional parameters like sort, dimensions etc
