@@ -22,7 +22,7 @@ function ossap_stats_check_credentials(){
     $scope = 'https://www.googleapis.com/auth/analytics.readonly';
     $service_gmail = variable_get('ossap_stats_service_gmail');
     $client_id = variable_get('ossap_stats_client_id');
-	$fname = variable_get('os_board_private_key');
+    $fname = variable_get('os_board_private_key');
     $fid = __DIR__.'/'.$fname.'';
     
     //create a new instance of Google_client
