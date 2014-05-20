@@ -67,6 +67,12 @@ if (empty($aggregates)) {
  * @see https://github.com/openscholar/ossap
  */
 
+function jqueryRefresh() {
+  setInterval(function(){
+                $("#realtime-vis").load("http://dev.openscholar.harvard.edu/ossap/real-time-visitors")  
+              }, 1000);
+}
+
 (function(){
 
 <? foreach ($aggregates as $key => $value): ?>
@@ -81,4 +87,6 @@ if (empty($aggregates)) {
   }
 
 <? endforeach; ?>
+
+jqueryRefresh();
 })();

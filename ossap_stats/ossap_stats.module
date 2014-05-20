@@ -231,13 +231,15 @@ function ossap_stats_rt_visitors($output_json = FALSE){
      
      $data = $results['rows'][0][0];
      
+     variable_set('rt_visitors', $data);
+     
      //return output as a json object;
      if($output_json) {
         drupal_json_output($data);
         return NULL;
      }
+     
      //return output as an array object;
-     variable_set('rt_visitors', $data);
      return $data;
 }
 
