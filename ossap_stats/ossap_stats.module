@@ -159,10 +159,10 @@ function ossap_stats_load_includes(){
      //create the array of results after checking whether the url is a portal url
      foreach($results['rows'] as $result) {
 	    $domain = $result[0];
-		$domainUrl = 'http://'.$domain;
-		$userCount = $result[1];
+	    $domainUrl = 'http://'.$domain;
+	    $userCount = $result[1];
 		
-		//check if domain is in the list of portals
+	    //check if domain is in the list of portals
 	    if (!in_array($domain, $portals)){
 		 //converting each url into a clickable link
 		   $sites_rows[] = array(l($domain,$domainUrl,array('external' => TRUE)),$userCount);
@@ -194,10 +194,10 @@ function ossap_stats_viewed_pages($output_json = FALSE){
      //as those are not being considered
      foreach($results['rows'] as $result) {
 	     $domain = $result[0];
-		 $pageViews = $result[1];
-		 $userCount = $result[2];
-		 $addHttp = "http://";
-		 
+	     $pageViews = $result[1];
+	     $userCount = $result[2];
+	     $addHttp = "http://";
+
          if ((!in_array($domain, $portals)) &&(strlen($pageViews) == 1)){
 			//add /home to those webpages where users are browsing the home page only
 			$pageViews = '/home';
@@ -207,7 +207,6 @@ function ossap_stats_viewed_pages($output_json = FALSE){
 		  } else {
 	    //converting each url into a clickable link
         $combined_page = l($domain.$pageViews,$addHttp.$domain.$pageViews); }
-		
         $rows[] = array($combined_page,$userCount);
      }
      
@@ -232,13 +231,14 @@ function ossap_stats_rt_visitors($output_json = FALSE){
      
      $data = $results['rows'][0][0];
      
+     variable_set('rt_visitors', $data);
+     
      //return output as a json object;
      if($output_json) {
         drupal_json_output($data);
         return NULL;
      }
      //return output as an array object;
-     variable_set('rt_visitors', $data);
      return $data;
 }
 

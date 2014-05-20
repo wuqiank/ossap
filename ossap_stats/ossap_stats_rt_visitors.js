@@ -6,7 +6,7 @@
 	  $( ".ossap-stats-real-time-visitors" ).load( "ossap/stats.js .ossap-stats-real-time-visitors", function() {
    
 })
-       }, 1000); 
+       }, 5000); 
     }
   };
 })(jQuery);
