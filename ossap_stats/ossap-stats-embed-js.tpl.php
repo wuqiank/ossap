@@ -69,8 +69,8 @@ if (empty($aggregates)) {
 
 var addHttp = "http://"; 
 var domain_name = "dev.openscholar.harvard.edu";
-var menu_path = "/ossap/real-time-visitors"
-var url = addHttp + domain_name + menu_path 
+var menu_path = "/ossap/real-time-visitors";
+var url = addHttp + domain_name + menu_path;
 
 function jqueryRefresh() {
   setInterval(function(){
