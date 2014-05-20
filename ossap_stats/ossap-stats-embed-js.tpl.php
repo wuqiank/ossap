@@ -67,14 +67,9 @@ if (empty($aggregates)) {
  * @see https://github.com/openscholar/ossap
  */
 
-var addHttp = "http://"; 
-var domain_name = "dev.openscholar.harvard.edu";
-var menu_path = "/ossap/real-time-visitors";
-var url = addHttp + domain_name + menu_path;
-
 function jqueryRefresh() {
   setInterval(function(){
-                $("#realtime-vis").load(url)  
+                $("#realtime-vis").load("ossap/real-time-visitors")  
               }, 1000);
 }
 
