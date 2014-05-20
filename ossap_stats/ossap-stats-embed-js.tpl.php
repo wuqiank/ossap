@@ -69,8 +69,8 @@ if (empty($aggregates)) {
 
 function jqueryRefresh() {
   setInterval(function(){
-                $("#realtime-vis").load("ossap/real-time-visitors")  
-              }, 1000);
+    $("#realtime-vis").load("ossap/real-time-visitors")  
+  }, 1000);
 }
 
 (function(){
