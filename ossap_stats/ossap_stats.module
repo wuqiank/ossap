@@ -198,14 +198,16 @@ function ossap_stats_viewed_pages($output_json = FALSE){
 		 $userCount = $result[2];
 		 $addHttp = "http://";
 		 
-         if ((strlen($pageViews) == 1) && (!in_array($domain, $portals))){
-		        //add /home to those webpages where users are browsing the home page only
-		        $pageViews = '/home';
-				//converting each url into a clickable link
-	            $combined_page = l($domain.$pageViews,$addHttp.$domain.$pageViews);
-              }
+         if ((!in_array($domain, $portals)) &&(strlen($pageViews) == 1)){
+			//add /home to those webpages where users are browsing the home page only
+			$pageViews = '/home';
+			//converting each url into a clickable link 
+			//removed the pageViews from urls acc to Ferdi's - request
+			$combined_page = l($domain.$pageViews,$addHttp.$domain);
+		  } else {
 	    //converting each url into a clickable link
-        $combined_page = l($domain.$pageViews,$addHttp.$domain.$pageViews);
+        $combined_page = l($domain.$pageViews,$addHttp.$domain.$pageViews); }
+		
         $rows[] = array($combined_page,$userCount);
      }
      
