@@ -73,7 +73,7 @@ $().ready(function(){
   //jQuery function
   jqueryRefresh = function(){
     setInterval(function(){
-      $( "#realtime-vis" ).load( "http://dev.openscholar.harvard.edu/ #realtime-vis")  
+      $("#realtime-vis").load( "http://dev.openscholar.harvard.edu/ossap/real-time-visitors")  
     }, 3000);
   }
 })
