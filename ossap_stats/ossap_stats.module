@@ -94,7 +94,7 @@ function ossap_stats_settings_form($form_state){
   );
   
   $form['ossap_stats_settings']['ossap_stats_private_key_path'] = array(
-    '#type' => 'textfile',
+    '#type' => 'textfield',
     '#title' => t('Private Key file'),
     '#required' => TRUE,
     '#description' => t('Add path to the private key here'),
