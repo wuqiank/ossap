@@ -93,17 +93,13 @@ function ossap_stats_settings_form($form_state){
     '#description' => t('Add Private Key here'),
   );
   
-  $form['ossap_stats_settings']['ossap_stats_private_key_fid'] = array(
-    '#type' => 'managed_file',
+  $form['ossap_stats_settings']['ossap_stats_private_key_path'] = array(
+    '#type' => 'textfield',
     '#title' => t('Private Key file'),
     '#required' => TRUE,
-    '#description' => t('Upload the Private Key file from Google and type service Account'),
-    '#default_value' => variable_get('ossap_stats_private_key_fid', ''),
-    '#upload_validators' => array(
-       'file_validate_extensions' => array('p12'),
-       'file_validate_size' => array(2*1024*1024),
-        ),
-      );
+    '#description' => t('Add path to the private key here'),
+    '#default_value' => variable_get('ossap_stats_private_key_path', ''),
+    );
   
   $form['ossap_stats_settings']['ossap_stats_client_id'] = array(
     '#type' => 'textfield',
