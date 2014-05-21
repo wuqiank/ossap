@@ -237,6 +237,7 @@ function ossap_stats_rt_visitors($output_json = FALSE){
       $result = FALSE; 
       // Don't try back again for 30 minutes, keep the same value.
       $rt_stats = array_merge(array(" ".(time()+1800) => current($rt_stats)),$rt_stats);
+      variable_set('rt_visitors', $rt_stats);
     }
      
     if(is_array($results)) {
