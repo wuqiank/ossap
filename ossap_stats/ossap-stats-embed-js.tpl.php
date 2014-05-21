@@ -67,10 +67,15 @@ if (empty($aggregates)) {
  * @see https://github.com/openscholar/ossap
  */
 
+var currUrl = document.URL;
+var realtimeUrl = currUrl+'ossap/real-time-visitors';
+var timeInterval = 5000;
+var realtimeDivId = "#realtime-vis";
+
 function jqueryRefresh() {
   setInterval(function(){
-                $("#realtime-vis").load("ossap/real-time-visitors")  
-              }, 1000);
+                $(realtimeDivId).load(realtimeUrl)  
+              }, timeInterval);
 }
 
 (function(){

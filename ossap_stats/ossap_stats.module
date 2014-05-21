@@ -98,7 +98,7 @@ function ossap_stats_settings_form($form_state){
     '#title' => t('Private Key file'),
     '#required' => TRUE,
     '#description' => t('Add path to the private key here'),
-    '#default_value' => variable_get('ossap_stats_private_key_path', ''),
+    '#default_value' => '',
     );
   
   $form['ossap_stats_settings']['ossap_stats_client_id'] = array(
@@ -161,10 +161,11 @@ function ossap_stats_load_includes(){
 	    //check if domain is in the list of portals
 	    if (!in_array($domain, $portals)){
 		 //converting each url into a clickable link
-		   $sites_rows[] = array(l($domain,$domainUrl,array('external' => TRUE)),'('.$userCount.')');
+		   $rows[] = array(l($domain,$domainUrl,array('external' => TRUE)),'('.$userCount.')');
 		}
 	}
-    
+    $sites_rows = array_slice($rows, 0, 10);
+	
     if($output_json) {
          //return output as a json object;
          drupal_json_output($sites_rows);
@@ -205,14 +206,15 @@ function ossap_stats_viewed_pages($output_json = FALSE){
         $combined_page = l($domain.$pageViews,$addHttp.$domain.$pageViews); }
         $rows[] = array($combined_page,'('.$userCount.')');
      }
-     
+     $pages_rows = array_slice($rows, 0, 10);
+	 
      //return output as a json object;
      if($output_json) {
         drupal_json_output($rows);
         return NULL;
     }
      //return output as an array object;
-     return $rows;
+     return $pages_rows;
 }
 
 /**
