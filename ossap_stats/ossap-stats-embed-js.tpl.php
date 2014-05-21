@@ -75,7 +75,7 @@ function ossapRealtimeStatsRefresh() {
   setInterval(function(){ 
     fetchInterval = fetchInterval - updateInterval;
     if(fetchInterval < 0) {
-      d$.getJSON(realtimeUrl, function( data ) {
+      .getJSON(realtimeUrl, function( data ) {
         $(realtimeDivId).text(data);
       });
       fetchInterval = 1500;
@@ -85,8 +85,6 @@ function ossapRealtimeStatsRefresh() {
       $(realtimeDivId).text(parseInt($(realtimeDivId).text(), 10) + Math.floor(Math.random() * plusOrMinus));
     }
   }, updateInterval);
-  
-  setInterval(function(){ $(realtimeDivId).load(realtimeUrl) }, timeInterval);
 }
 
 (function(){
