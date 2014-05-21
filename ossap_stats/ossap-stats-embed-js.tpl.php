@@ -76,7 +76,7 @@ function jqueryRefresh() {
   setInterval(function(){
          $(realtimeDivId).load(realtimeUrl)  
               }, timeInterval);
-}
+  }
 
 (function(){
 
