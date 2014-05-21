@@ -22,8 +22,8 @@ function ossap_stats_check_credentials(){
     $scope = 'https://www.googleapis.com/auth/analytics.readonly';
     $service_gmail = variable_get('ossap_stats_service_gmail');
     $client_id = variable_get('ossap_stats_client_id');
-    $fname = variable_get('ossap_stats_private_key');
-    $fpath = variable_get('ossap_stats_private_key_path');
+    $fname = variable_get('ossap_stats_private_key_file_name');
+    $fpath = variable_get('ossap_stats_private_key_path_to_file');
     $fpkey = $fpath.'/'.$fname.'';
     
     //create a new instance of Google_client
@@ -65,19 +65,19 @@ function ossap_stats_design_output($type){
     
     //get credentials 
     $service = ossap_stats_check_credentials();
-     
+    $max_results = 25;
+    
     //set values depending on the type of the parameter
     if ($type == 'visits'){
         $sort = $sort_visits;
         $metrics = $metrics_visits;
         $dimensions = 'ga:hostname';
-        $max_results = 11;
+        
      }
     else {
         $sort = $sort_pageviews;
         $metrics = $metrics_pageviews;
         $dimensions = 'ga:hostname,ga:pagePath';
-        $max_results = 10;
     }
 
     //set optional parameters like sort, dimensions etc
