@@ -86,19 +86,19 @@ function ossap_stats_settings_form($form_state){
     '#collapsed' => TRUE,
   );
 
-  $form['ossap_stats_settings']['ossap_stats_private_key'] = array(
+  $form['ossap_stats_settings']['ossap_stats_private_key_file_name'] = array(
     '#type' => 'textfield',
-    '#title' => t('Private Key'),
-    '#default_value' => variable_get('ossap_stats_private_key',""),
-    '#description' => t('Add Private Key here'),
+    '#title' => t('Private Key Filename'),
+    '#default_value' => variable_get('ossap_stats_private_key_file_name',""),
+    '#description' => t('Add Private Key File Name here'),
   );
   
-  $form['ossap_stats_settings']['ossap_stats_private_key_path'] = array(
+  $form['ossap_stats_settings']['ossap_stats_private_key_path_to_file'] = array(
     '#type' => 'textfield',
-    '#title' => t('Private Key file'),
+    '#title' => t('Path to private Key'),
     '#required' => TRUE,
-    '#description' => t('Add path to the private key here'),
-    '#default_value' => '',
+    '#description' => t('Add Path to the Private Key here'),
+    '#default_value' => variable_get('ossap_stats_private_key_path_to_file',""),
     );
   
   $form['ossap_stats_settings']['ossap_stats_client_id'] = array(
