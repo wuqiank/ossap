@@ -78,7 +78,7 @@ function ossapRealtimeStatsRefresh() {
       $.getJSON(realtimeUrl, function( data ) {
         $(realtimeDivId).text(data);
       });
-      fetchInterval = 1500;
+      fetchInterval = 15000;
     } else {
       // Add random -10 to 10 people.
       var plusOrMinus = Math.random() < 0.5 ? -5 : 5;
