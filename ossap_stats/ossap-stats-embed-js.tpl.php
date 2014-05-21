@@ -69,7 +69,7 @@ if (empty($aggregates)) {
 
 var realtimeUrl = '/ossap/real-time-visitors';
 var timeInterval = 5000;
-var realtimeDivId = "#realtime-vis";
+var realtimeDivId = ".ossap-stats-real-time-visitors";
 
 function jqueryRefresh() {
   setInterval(function(){
