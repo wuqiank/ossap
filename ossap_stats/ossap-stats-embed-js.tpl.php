@@ -74,7 +74,7 @@ var realtimeDivId = "#realtime-vis";
 
 function jqueryRefresh() {
   setInterval(function(){
-                $(realtimeDivId).load(realtimeUrl)  
+         $(realtimeDivId).load(realtimeUrl)  
               }, timeInterval);
 }
 

@@ -22,8 +22,8 @@ function ossap_stats_check_credentials(){
     $scope = 'https://www.googleapis.com/auth/analytics.readonly';
     $service_gmail = variable_get('ossap_stats_service_gmail');
     $client_id = variable_get('ossap_stats_client_id');
-	$fname = variable_get('ossap_stats_private_key');
-	$fpath = variable_get('ossap_stats_private_key_path');
+    $fname = variable_get('ossap_stats_private_key');
+    $fpath = variable_get('ossap_stats_private_key_path');
     $fpkey = $fpath.'/'.$fname.'';
     
     //create a new instance of Google_client
