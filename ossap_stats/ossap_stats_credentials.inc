@@ -65,8 +65,8 @@ function ossap_stats_design_output($type){
     
     //get credentials 
     $service = ossap_stats_check_credentials();
-	$max_results = 25;
-     
+    $max_results = 25;
+    
     //set values depending on the type of the parameter
     if ($type == 'visits'){
         $sort = $sort_visits;
