@@ -66,16 +66,26 @@ if (empty($aggregates)) {
  *
  * @see https://github.com/openscholar/ossap
  */
-
-var realtimeUrl = '/ossap/real-time-visitors';
-var timeInterval = 5000;
-var realtimeDivId = ".ossap-stats-real-time-visitors";
-
-function jqueryRefresh() {
-  setInterval(function(){
-         $(realtimeDivId).load(realtimeUrl)  
-              }, timeInterval);
-  }
+function ossapRealtimeStatsRefresh() {
+  var realtimeUrl = '/ossap/real-time-visitors';
+  var updateInterval = 1000;
+  var fetchInterval = 15000;
+  var realtimeDivId = ".ossap-stats-real-time-visitors";
+  
+  setInterval(function(){ 
+    fetchInterval = fetchInterval - updateInterval;
+    if(fetchInterval < 0) {
+      $(realtimeDivId).load(realtimeUrl);
+      fetchInterval = 1500;
+    } else {
+      // Add random -10 to 10 people.
+      var plusOrMinus = Math.random() < 0.5 ? -5 : 5;
+      $(realtimeDivId).text(parseInt($(realtimeDivId).text(), 10) + Math.floor(Math.random() * plusOrMinus));
+    }
+  }, updateInterval);
+  
+  setInterval(function(){ $(realtimeDivId).load(realtimeUrl) }, timeInterval);
+}
 
 (function(){
 
@@ -92,5 +102,5 @@ function jqueryRefresh() {
 
 <? endforeach; ?>
 
-jqueryRefresh();
+ossapRealtimeStatsRefresh();
 })();
