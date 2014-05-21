@@ -80,8 +80,14 @@ function ossap_stats_design_output($type){
 
   //set optional parameters like sort, dimensions etc
   $optparams = array ('dimensions' => $dimensions,'sort' => $sort,'max-results' => $max_results);
-  //get results from the service object
-  $results = $service->data_ga->get($analytics_id, $start_date, $end_date, $metrics, $optparams);
+  
+  try {
+    //get results from the service object
+    $results = $service->data_ga->get($analytics_id, $start_date, $end_date, $metrics, $optparams);
+  } catch (Exception $e) {
+    watchdog(WATCHDOG_ERROR, "Unable to get data from Google Anlitics, {$analytics_id}, {$start_date}, {$end_date}, {$metrics}, {$optparams}");
+    return array('rows' => array());
+  }
   
   //return the results
   return $results;
