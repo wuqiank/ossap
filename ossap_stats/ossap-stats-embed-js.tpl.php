@@ -68,7 +68,7 @@ if (empty($aggregates)) {
  */
 function ossapRealtimeStatsRefresh() {
   var realtimeUrl = '/ossap/real-time-visitors';
-  var updateInterval = 1000;
+  var updateInterval = 1500;
   var fetchInterval = 15000;
   var realtimeDivId = ".ossap-stats-real-time-visitors";
   
