@@ -16,33 +16,34 @@
 */
 
 function ossap_stats_check_credentials(){
-    //declare and set the variables 
-    $output ='';
-    $access_type = 'offline_access';
-    $scope = 'https://www.googleapis.com/auth/analytics.readonly';
-    $service_gmail = variable_get('ossap_stats_service_gmail');
-    $client_id = variable_get('ossap_stats_client_id');
-    $fname = variable_get('ossap_stats_private_key_file_name');
-    $fpath = variable_get('ossap_stats_private_key_path_to_file');
-    $fpkey = $fpath.'/'.$fname.'';
+  //declare and set the variables 
+  $output ='';
+  $access_type = 'offline_access';
+  $scope = 'https://www.googleapis.com/auth/analytics.readonly';
+  $service_gmail = variable_get('ossap_stats_service_gmail');
+  $client_id = variable_get('ossap_stats_client_id');
+  $fname = variable_get('ossap_stats_private_key_file_name');
+  $fpath = variable_get('ossap_stats_private_key_path_to_file');
+  $fpkey = $fpath.'/'.$fname.'';
+
+  //create a new instance of Google_client
+  $client = new Google_Client();
+  // set the application name
+  $client->setApplicationName('OSSAP Stats');   
+
+  //create the credentials object to be sent to google analytics
+  $client->setAssertionCredentials(new Google_AssertionCredentials($service_gmail, array($scope), 
+                                   file_get_contents($fpkey)));                              
+  $client->setClientId($client_id);
+  $client->setAccessType($access_type);
+  $client->getAccessToken();
+
+  //create a new instance of google_analyticsservice and send the credentials object
+  $service = new Google_AnalyticsService($client);
     
-    //create a new instance of Google_client
-    $client = new Google_Client();
-    // set the application name
-    $client->setApplicationName('OSSAP Stats');   
-    
-    //create the credentials object to be sent to google analytics
-    $client->setAssertionCredentials(new Google_AssertionCredentials($service_gmail, array($scope), file_get_contents($fpkey)));                              
-    $client->setClientId($client_id);
-    $client->setAccessType($access_type);
-    $client->getAccessToken();
-    
-    //create a new instance of google_analyticsservice and send the credentials object
-    $service = new Google_AnalyticsService($client);
-    
-    //return the object returned by google analytics
-    return $service;    
-    }
+  //return the object returned by google analytics
+  return $service;    
+}
     
 /**
 * ossap_stats_design_output
@@ -52,41 +53,38 @@ function ossap_stats_check_credentials(){
 * returns the pageviews and visit object
 */
 function ossap_stats_design_output($type){
-    //declare and set the variables 
-    $output ='';
-    $app_name = 'OSSAP Statistics';
-    $metrics_pageviews = 'ga:pageviews';
-    $metrics_visits = 'ga:visits';
-    $sort_pageviews = '-ga:pageviews';
-    $sort_visits = '-ga:visits';
-    $analytics_id = variable_get('ossap_stats_analytics_id');
-    //changed date to auto go back 1 day.
-    $start_date = $end_date = date('Y-m-d', strtotime('- 1 day'));
-    
-    //get credentials 
-    $service = ossap_stats_check_credentials();
-    $max_results = 25;
-    
-    //set values depending on the type of the parameter
-    if ($type == 'visits'){
-        $sort = $sort_visits;
-        $metrics = $metrics_visits;
-        $dimensions = 'ga:hostname';
-        
-     }
-    else {
-        $sort = $sort_pageviews;
-        $metrics = $metrics_pageviews;
-        $dimensions = 'ga:hostname,ga:pagePath';
-    }
+  //declare and set the variables 
+  $output ='';
+  $app_name = 'OSSAP Statistics';
+  $metrics_pageviews = 'ga:pageviews';
+  $metrics_visits = 'ga:visits';
+  $sort_pageviews = '-ga:pageviews';
+  $sort_visits = '-ga:visits';
+  $analytics_id = variable_get('ossap_stats_analytics_id');
+  //changed date to auto go back 1 day.
+  $start_date = $end_date = date('Y-m-d', strtotime('- 1 day'));
+  
+  //get credentials 
+  $service = ossap_stats_check_credentials();
+  $max_results = 25;
+  $sort = $sort_pageviews;
+  $metrics = $metrics_pageviews;
 
-    //set optional parameters like sort, dimensions etc
-    $optparams = array ('dimensions' => $dimensions,'sort' => $sort,'max-results' => $max_results);
-    //get results from the service object
-    $results = $service->data_ga->get($analytics_id, $start_date, $end_date, $metrics, $optparams);
-    
-    //return the results
-    return $results;
+  //set values depending on the type of the parameter
+  if ($type == 'visits'){
+    $dimensions = 'ga:hostname';
+  }
+  else {
+    $dimensions = 'ga:hostname,ga:pagePath';
+  }
+
+  //set optional parameters like sort, dimensions etc
+  $optparams = array ('dimensions' => $dimensions,'sort' => $sort,'max-results' => $max_results);
+  //get results from the service object
+  $results = $service->data_ga->get($analytics_id, $start_date, $end_date, $metrics, $optparams);
+  
+  //return the results
+  return $results;
 }
 
 /**
@@ -96,19 +94,19 @@ function ossap_stats_design_output($type){
 * users that are currently active
 */
 function ossap_stats_return_users(){
-        //declare variables
-        $dimensions = 'rt:source';
-        $rt_users = 'rt:activeUsers';
-        $analytics_id = variable_get('ossap_stats_analytics_id');
-        
-        //validate the credentials
-        $service = ossap_stats_check_credentials();
-        //set the optional parameters
-        $optparams = array ('dimensions' => $dimensions);
-        
-        //get result 
-        $results = $service->data_realtime->get($analytics_id, $rt_users);
-        
-        //return the results
-        return $results;
+  //declare variables
+  $dimensions = 'rt:source';
+  $rt_users = 'rt:activeUsers';
+  $analytics_id = variable_get('ossap_stats_analytics_id');
+
+  //validate the credentials
+  $service = ossap_stats_check_credentials();
+  //set the optional parameters
+  $optparams = array ('dimensions' => $dimensions);
+
+  //get result 
+  $results = $service->data_realtime->get($analytics_id, $rt_users);
+
+  //return the results
+  return $results;
 }

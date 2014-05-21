@@ -31,7 +31,7 @@ function ossap_stats_menu() {
     'access callback' => TRUE,
     'type' => MENU_CALLBACK,
   );
-  //ossap menu start
+
   $items['ossap/most-viewed-pages'] = array(
     'title' => t('OpenScholar Board - Most Viewed Pages'),
     'type' => MENU_CALLBACK,
@@ -65,7 +65,7 @@ function ossap_stats_menu() {
     'page arguments' => array('ossap_stats_settings_form'),
     'access arguments' => array('administer content'),
   );
-  //ossap menu end
+
   return $items;
 }
 
@@ -76,9 +76,9 @@ function ossap_stats_menu() {
 * enter the data for activating Google Analytics 
 */
 function ossap_stats_settings_form($form_state){
- $form = array();
+  $form = array();
 
- $form['ossap_stats_settings'] = array(
+  $form['ossap_stats_settings'] = array(
     '#type' => 'fieldset',
     '#title' => t('Enter OS Stats settings details here'),
     '#weight' => 0,
@@ -100,7 +100,7 @@ function ossap_stats_settings_form($form_state){
     '#description' => t('Add Path to the Private Key here'),
     '#default_value' => variable_get('ossap_stats_private_key_path_to_file',""),
     );
-  
+
   $form['ossap_stats_settings']['ossap_stats_client_id'] = array(
     '#type' => 'textfield',
     '#title' => t('Client Id'),
@@ -116,7 +116,7 @@ function ossap_stats_settings_form($form_state){
     '#default_value' => variable_get('ossap_stats_service_gmail',""),
     '#description' => t('Add Service Account Gmail here'),
    );
-   
+
    $form['ossap_stats_settings']['ossap_stats_analytics_id'] = array(
     '#type' => 'textfield',
     '#title' => t('Analytics Id'),
@@ -126,7 +126,6 @@ function ossap_stats_settings_form($form_state){
    );
 
   return system_settings_form($form);
-
 }
 
 /**
@@ -134,45 +133,46 @@ function ossap_stats_settings_form($form_state){
 * include all the required files via module_load_include
 */
 function ossap_stats_load_includes(){
-    module_load_include('php', 'ossap_stats', 'libraries/src/Google_Client');
-    module_load_include('php', 'ossap_stats', 'libraries/src/contrib/Google_AnalyticsService');
-    module_load_include('inc', 'ossap_stats', 'ossap_stats_credentials');
+  module_load_include('php', 'ossap_stats', 'libraries/src/Google_Client');
+  module_load_include('php', 'ossap_stats', 'libraries/src/contrib/Google_AnalyticsService');
+  module_load_include('inc', 'ossap_stats', 'ossap_stats_credentials');
 }
 
 /**
 * ossap_stats_visited_sites()
 * no parameters. returns most frequently visited sites
 */
- function ossap_stats_visited_sites($output_json = FALSE){
-     //load the includes
-     ossap_stats_load_includes();
+function ossap_stats_visited_sites($output_json = FALSE){
+  //load the includes
+  ossap_stats_load_includes();
 
-     //portals list which should be avoided in the output
-     $portals = array('hwp.harvard.edu','projects.iq.harvard.edu','scholar.harvard.edu');
-     //get results from the design_output function by sending the parameter of type = visits
-     $results = ossap_stats_design_output('visits');
+  //portals list which should be avoided in the output
+  $portals = array('hwp.harvard.edu','projects.iq.harvard.edu','scholar.harvard.edu');
+  //get results from the design_output function by sending the parameter of type = visits
+  $results = ossap_stats_design_output('visits');
 
-     //create the array of results after checking whether the url is a portal url
-     foreach($results['rows'] as $result) {
-	    $domain = $result[0];
-	    $domainUrl = 'http://'.$domain;
-	    $userCount = $result[1];
-		
-	    //check if domain is in the list of portals
-	    if (!in_array($domain, $portals)){
-		 //converting each url into a clickable link
-		   $rows[] = array(l($domain,$domainUrl,array('external' => TRUE)),'('.$userCount.')');
-		}
-	}
-    $sites_rows = array_slice($rows, 0, 10);
-	
-    if($output_json) {
-         //return output as a json object;
-         drupal_json_output($sites_rows);
-         return NULL;
+  //create the array of results after checking whether the url is a portal url
+  foreach($results['rows'] as $result) {
+    $domain = $result[0];
+    $domainUrl = 'http://'.$domain;
+    $userCount = $result[1];
+
+    //check if domain is in the list of portals
+    if (!in_array($domain, $portals)){
+    //converting each url into a clickable link
+    $rows[] = array(l($domain,$domainUrl,array('external' => TRUE)),'('.$userCount.')');
     }
-     //return output as an array object;
-     return $sites_rows;
+  }
+  $sites_rows = array_slice($rows, 0, 10);
+
+  if($output_json) {
+    //return output as a json object;
+    drupal_json_output($sites_rows);
+    return NULL;
+  }
+
+  //return output as an array object;
+  return $sites_rows;
 }
 
 /**
@@ -180,41 +180,45 @@ function ossap_stats_load_includes(){
 * no parameters. returns most frequently viewed pages
 */
 function ossap_stats_viewed_pages($output_json = FALSE){
-     //load the includes
-     ossap_stats_load_includes();
-     // portals list which should be avoided in the output
-     $portals = array('hwp.harvard.edu','projects.iq.harvard.edu','scholar.harvard.edu');
-     //get results from the design_output function by sending the parameter of type = pageviews
-     $results = ossap_stats_design_output('pageviews');
-     
-     //create the array of results and filter out urls that are portals
-     //as those are not being considered
-     foreach($results['rows'] as $result) {
-	     $domain = $result[0];
-	     $pageViews = $result[1];
-	     $userCount = $result[2];
-	     $addHttp = "http://";
+  //load the includes
+  ossap_stats_load_includes();
+  // portals list which should be avoided in the output
+  $portals = array('hwp.harvard.edu','projects.iq.harvard.edu','scholar.harvard.edu');
+  //get results from the design_output function by sending the parameter of type = pageviews
+  $results = ossap_stats_design_output('pageviews');
 
-         if ((!in_array($domain, $portals)) &&(strlen($pageViews) == 1)){
-			//add /home to those webpages where users are browsing the home page only
-			$pageViews = '/home';
-			//converting each url into a clickable link 
-			//removed the pageViews from urls acc to Ferdi's - request
-			$combined_page = l($domain.$pageViews,$addHttp.$domain);
-		  } else {
-	    //converting each url into a clickable link
-        $combined_page = l($domain.$pageViews,$addHttp.$domain.$pageViews); }
-        $rows[] = array($combined_page,'('.$userCount.')');
-     }
-     $pages_rows = array_slice($rows, 0, 10);
-	 
-     //return output as a json object;
-     if($output_json) {
-        drupal_json_output($rows);
-        return NULL;
+  //create the array of results and filter out urls that are portals
+  //as those are not being considered
+  foreach($results['rows'] as $result) {
+    $domain = $result[0];
+    $pageViews = $result[1];
+    $userCount = $result[2];
+    $addHttp = "http://";
+
+    if ((!in_array($domain, $portals)) &&(strlen($pageViews) == 1)){
+      //add /home to those webpages where users are browsing the home page only
+      $pageViews = '/home';
+      //converting each url into a clickable link 
+      //removed the pageViews from urls acc to Ferdi's - request
+      $combined_page = l($domain.$pageViews,$addHttp.$domain);
     }
-     //return output as an array object;
-     return $pages_rows;
+    else{
+      //converting each url into a clickable link
+      $combined_page = l($domain.$pageViews,$addHttp.$domain.$pageViews);
+    }
+      $rows[] = array($combined_page,'('.$userCount.')');
+  }
+
+  $pages_rows = array_slice($rows, 0, 10);
+
+  //return output as a json object;
+  if($output_json) {
+    drupal_json_output($rows);
+    return NULL;
+  }
+
+  //return output as an array object;
+  return $pages_rows;
 }
 
 /**
@@ -222,11 +226,9 @@ function ossap_stats_viewed_pages($output_json = FALSE){
 * no parameters. returns real time visitors
 */
 function ossap_stats_rt_visitors($output_json = FALSE){
-     
   $rt_stats = variable_get('rt_visitors', array());
   // If it has been more that 5 seconds go get new stats from google.
   if(!count($rt_stats) || !is_array($rt_stats) || intval(key($rt_stats)) < (time() - 15)) {
-  
     try{
       //load the includes
       ossap_stats_load_includes();
@@ -243,22 +245,20 @@ function ossap_stats_rt_visitors($output_json = FALSE){
     if(is_array($results)) {
       $data = $results['rows'][0][0];
       $rt_stats = array_merge(array(" ".time() => $data),$rt_stats);
-     
       variable_set('rt_visitors', array_slice($rt_stats, 0, 15, true));
     }
   }
-     
+
    //return output as a json object;
    if($output_json) {
      drupal_page_is_cacheable(FALSE);
      drupal_json_output(current($rt_stats));
      return NULL;
    }
-     
+
    //return output as an array object;
    return $data;
 }
-
 
 /**
  * Implements hook_theme().
@@ -323,13 +323,13 @@ function _ossap_stats_page() {
   if ($most_viewed_pages !== NULL) {
     $data['viewed_pages'] = $most_viewed_pages;
   }
-  
+
   // Add real time visitors statistics if any statistics exist.
   $real_time_visitors = current(variable_get('rt_visitors', array()));
   if ($real_time_visitors !== NULL) {
     $data['rt_visitors'] = $real_time_visitors;
   }
-   
+
   drupal_json_output($data);
 }
 
