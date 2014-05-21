@@ -127,7 +127,9 @@ function os_board_settings_form($form_state){
 function _os_board_get_require_once(){
   require_once 'google-api-php-client/src/Google_Client.php';
   require_once 'google-api-php-client/src/contrib/Google_AnalyticsService.php';
-  require_once 'os_board.inc';
+  //require_once 'os_board.inc';
+  
+  module_load_include('inc', 'ossap_stats', 'ossap_stats_credentials');
 }
 
 /*
