@@ -66,7 +66,7 @@ function ossap_stats_design_output($type){
   
   //get credentials 
   $service = ossap_stats_check_credentials();
-  $max_results = 25;
+  $max_results = 28;
   $sort = $sort_pageviews;
   $metrics = $metrics_pageviews;
 
@@ -85,7 +85,7 @@ function ossap_stats_design_output($type){
     //get results from the service object
     $results = $service->data_ga->get($analytics_id, $start_date, $end_date, $metrics, $optparams);
   } catch (Exception $e) {
-    watchdog(WATCHDOG_ERROR, "Unable to get data from Google Anlitics, {$analytics_id}, {$start_date}, {$end_date}, {$metrics}, {$optparams}");
+    watchdog(WATCHDOG_ERROR, "Unable to get data from Google Data, {$analytics_id}, {$start_date}, {$end_date}, {$metrics}, {$optparams}");
     return array('rows' => array());
   }
   
