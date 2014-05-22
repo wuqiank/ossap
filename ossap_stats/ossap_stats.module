@@ -143,6 +143,13 @@ function ossap_stats_load_includes(){
 * no parameters. returns most frequently visited sites
 */
 function ossap_stats_visited_sites($output_json = FALSE){
+  
+  if($output_json) {
+    //return output as a json object;
+    drupal_json_output(variable_get('visited_sites',array()));
+    return NULL;
+  }
+  
   //load the includes
   ossap_stats_load_includes();
 
@@ -163,12 +170,6 @@ function ossap_stats_visited_sites($output_json = FALSE){
       $rows[] = array(l($domain,$domainUrl,array('external' => TRUE)),'('.$userCount.')');
     }
   }
-  
-  if($output_json) {
-    //return output as a json object;
-    drupal_json_output($rows);
-    return NULL;
-  }
 
   //return output as an array object;
   return $rows;
@@ -179,6 +180,13 @@ function ossap_stats_visited_sites($output_json = FALSE){
 * no parameters. returns most frequently viewed pages
 */
 function ossap_stats_viewed_pages($output_json = FALSE){
+  
+  //return output as a json object from the variable.
+  if($output_json) {
+    drupal_json_output(variable_get('viewed_pages', array()));
+    return NULL;
+  }
+  
   //load the includes
   ossap_stats_load_includes();
   
@@ -205,12 +213,6 @@ function ossap_stats_viewed_pages($output_json = FALSE){
       $combined_page = l($domain.$pageViews,$addHttp.$domain.$pageViews);
     }
       $rows[] = array($combined_page,'('.$userCount.')');
-  }
-
-  //return output as a json object;
-  if($output_json) {
-    drupal_json_output($rows);
-    return NULL;
   }
 
   //return output as an array object;
